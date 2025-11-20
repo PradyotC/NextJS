@@ -1,0 +1,13 @@
+.btn-primary {
+  // Use @apply to combine all Tailwind utility classes
+  @apply px-8 py-2 bg-white text-black font-semibold rounded-full;
+
+  // You can also add standard CSS/SCSS properties:
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  // SCSS Nesting for hover state
+  &:hover {
+    @apply bg-gray-100;
+  }
+}
