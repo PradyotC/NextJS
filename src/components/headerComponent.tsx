@@ -7,8 +7,8 @@ import { faBell } from '@fortawesome/free-regular-svg-icons';
 const HeaderComponent: React.FC = () => {
     const navItems = [
         { name: "Home", path: "/" },
-        { name: "About", path: "/about" },
-        { name: "Contact Us", path: "/contact-us" },
+        { name: "TMDB", path: "/tmdb" },
+        { name: "Test", path: "/test" },
     ];
 
     return (
