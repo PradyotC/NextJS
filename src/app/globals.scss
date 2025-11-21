@@ -1,4 +1,3 @@
-@use "../components/button" as *;
 @use "tailwindcss";
 @plugin "daisyui";
 
@@ -42,6 +41,19 @@
   --border: 1.5px;
   --depth: 0;
   --noise: 0;
+
+--rating-gradient-0:  oklch(36% 0.44  24);  /* deep vivid red (rare) */
+--rating-gradient-1:  oklch(42% 0.42  28);  /* strong red */
+--rating-gradient-2:  oklch(46% 0.40  36);  /* red -> red-orange */
+--rating-gradient-3:  oklch(50% 0.38  46);  /* orange-red */
+--rating-gradient-4:  oklch(67.195% 0.20196 42.194);  /* vivid orange */
+--rating-gradient-5:  oklch(74.177% 0.16429 66.652);  /* warm yellowish-orange */
+--rating-gradient-6:  oklch(96.479% 0.21188 110.946);   /* PURE YELLOW (bright and distinct) */
+--rating-gradient-7:  oklch(88.732% 0.23954 130.348);  /* yellow -> yellow-green */
+--rating-gradient-8:  oklch(69.251% 0.19246 132.172);  /* greenish-yellow */
+--rating-gradient-9:  oklch(64.778% 0.22041 142.511);  /* medium green */
+--rating-gradient-10: oklch(49.042% 0.16633 142.523);  /* deep green (rare) */
+
 
   /* MINIMAL ALIASES — map daisyUI / app names to your source tokens */
   --primary: var(--color-primary);
@@ -121,6 +133,16 @@
     --radius-default: var(--radius-box);
   }
 }
+
+@layer utilities {
+  @for $i from 0 through 10 {
+    .text-rating-gradient-#{$i}  { color: var(--rating-gradient-#{$i}) !important; }
+    .bg-rating-gradient-#{$i}    { background-color: var(--rating-gradient-#{$i}) !important; }
+    .border-rating-gradient-#{$i} { border-color: var(--rating-gradient-#{$i}) !important; }
+    .text-rating-fg-#{$i}        { color: var(--rating-fg-#{$i}) !important; }
+  }
+}
+
 
 /* small body defaults that use your theme variables */
 body {

@@ -1,15 +1,49 @@
 // app/api/tmdb/[...path]/route.ts
-import axios from "axios";
 import { NextResponse } from "next/server";
-import { getCached, setCached } from "@/lib/server/prismaCache"; 
+import { getCached, setCached } from "@/lib/server/prismaCache";
 
-const TMDB_BASE = "https://api.themoviedb.org/3";
+const TMDB_BASE = process.env.TMDB_BASE_URL;
 const TMDB_KEY = process.env.TMDB_API_ACCESS_TOKEN;
 
 export const runtime = "nodejs";
 
-// TMDB data is generally safe to cache for longer periods
-const CACHE_TTL_SECONDS = 3600; // 1 hour
+// TTL preset constants (seconds)
+const ONE_HOUR = 3600;
+const TEN_MINUTES = 600;
+const ONE_YEAR = 31536000;
+
+// Map of regex (string) => ttl seconds
+// Order matters: first match wins.
+const endpointTtlRules: { pattern: RegExp; ttl: number; description?: string }[] = [
+  // Single-entity details -> long cache (1 year)
+  { pattern: /^\/?movie\/\d+$/i, ttl: ONE_YEAR, description: "movie detail (long)" },
+  { pattern: /^\/?tv\/\d+$/i, ttl: ONE_YEAR, description: "tv detail (long)" },
+  { pattern: /^\/?person\/\d+$/i, ttl: ONE_YEAR, description: "person detail (long)" },
+
+  // Lists / popular / top rated / trending -> short (1 hour)
+  { pattern: /^\/?movie\/(popular|top_rated|now_playing|upcoming)$/i, ttl: ONE_HOUR, description: "movie lists" },
+  { pattern: /^\/?trending\//i, ttl: ONE_HOUR, description: "trending lists" },
+
+  // Search & discover endpoints -> shorter (10 minutes)
+  { pattern: /^\/?search\//i, ttl: TEN_MINUTES, description: "search" },
+  { pattern: /^\/?discover\//i, ttl: TEN_MINUTES, description: "discover" },
+
+  // Fallback
+  { pattern: /^.*$/, ttl: ONE_HOUR, description: "fallback" },
+];
+
+function getTtlForPath(path: string): number {
+  // Normalize -> remove repeated leading slashes and trailing slash optionally (we want consistent matching)
+  const normalized = path.replace(/^\/+/, "").replace(/\/+$/, ""); // e.g. "movie/123" or "trending/movie/week?..." (we will strip search later)
+  // Test each rule against the normalized path
+  for (const rule of endpointTtlRules) {
+    if (rule.pattern.test("/" + normalized)) {
+      return rule.ttl;
+    }
+  }
+  // Default fallback
+  return ONE_HOUR;
+}
 
 export async function GET(req: Request) {
   try {
@@ -22,49 +56,52 @@ export async function GET(req: Request) {
 
     if (!finalPath.startsWith("/")) finalPath = "/" + finalPath;
 
-    // 3. Combine search parameters (auto pass-through)
+    // Keep the search string for the actual TMDB request & cache key
     const search = url.search ?? "";
 
-    // 4. Unique cache key based on requested TMDB path + search
+    // For regex matching we only care about the path portion (no leading / normalization)
+    const pathForMatching = finalPath; // e.g. "/movie/123" or "/movie/popular"
+
+    // Unique cache key: path + search (so a query changes the key)
     const urlId = `${finalPath}${search}`;
     const cacheKey = `tmdb:${urlId}`;
 
-    console.log(`cacheKey: ${cacheKey}`);
-
-    // 5. Try DB cache first
-    const cached = await getCached(cacheKey); 
+    // Try DB cache first
+    const cached = await getCached(cacheKey);
     if (cached) {
-      console.log("Cache HIT (DB)");
+      // You can optionally log that cache hit occurred and when that cached record will expire,
+      // but do not reveal TTL to client in response body.
+      // (example logging omitted here)
       return NextResponse.json(cached);
     }
-    console.log("Cache MISS (DB)");
 
-    // 6. Build the TMDB API endpoint
+    // Determine TTL based on the TMDB path (server-side only)
+    const chosenTtlSeconds = getTtlForPath(pathForMatching);
+
+    // Build the TMDB API endpoint
     const endpoint = `${TMDB_BASE}${finalPath}${search}`;
 
-    // 7. Make the axios request
-    const response = await axios.get(endpoint, {
+    // Make the native FETCH request
+    const response = await fetch(endpoint, {
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${TMDB_KEY}`,
       },
+      cache: "no-store", // ensure server fetch isn't itself cached by Next/fetch
     });
 
-    const data = response.data;
+    if (!response.ok) {
+      throw new Error(`TMDB responded with status ${response.status}`);
+    }
 
-    // 8. Cache for 1 hour (3600 seconds)
-    await setCached(cacheKey, data, CACHE_TTL_SECONDS); 
+    const data = await response.json();
 
-    // 9. Return the fresh data
-    const returnData = NextResponse.json(data);
-    console.log(`Returned fresh data for cacheKey: ${cacheKey}`);
-    return returnData;
+    // Save into DB cache with chosen TTL
+    await setCached(cacheKey, data, chosenTtlSeconds);
+
+    return NextResponse.json(data);
   } catch (error: any) {
     console.error("TMDB error:", error?.message ?? error);
-
-    return NextResponse.json(
-      { error: "TMDB fetch failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "TMDB fetch failed" }, { status: 500 });
   }
 }
