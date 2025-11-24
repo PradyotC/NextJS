@@ -3,146 +3,155 @@
 
 /* compact mapping: keep original tokens, expose only the daisyUI / app-friendly aliases */
 [data-theme="dark"] {
-  /* ORIGINAL / initial tokens (unchanged) */
-  --color-base-100: oklch(12% 0.042 264.695);
-  --color-base-200: oklch(20% 0.042 265.755);
-  --color-base-300: oklch(27% 0.041 260.031);
-  --color-base-content: oklch(96% 0.007 247.896);
+	/* ORIGINAL / initial tokens (unchanged) */
+	--color-base-100: oklch(12% 0.042 264.695);
+	--color-base-200: oklch(20% 0.042 265.755);
+	--color-base-300: oklch(27% 0.041 260.031);
+	--color-base-content: oklch(96% 0.007 247.896);
 
-  --color-primary: oklch(0% 0 0);
-  --color-primary-content: oklch(100% 0 0);
+	--color-primary: oklch(0% 0 0);
+	--color-primary-content: oklch(100% 0 0);
 
-  --color-secondary: oklch(76% 0.233 130.85);
-  --color-secondary-content: oklch(98% 0.031 120.757);
+	--color-secondary: oklch(76% 0.233 130.85);
+	--color-secondary-content: oklch(98% 0.031 120.757);
 
-  --color-accent: oklch(72% 0.219 149.579);
-  --color-accent-content: oklch(98% 0.018 155.826);
+	--color-accent: oklch(72% 0.219 149.579);
+	--color-accent-content: oklch(98% 0.018 155.826);
 
-  --color-neutral: oklch(37% 0.044 257.287);
-  --color-neutral-content: oklch(98% 0.003 247.858);
+	--color-neutral: oklch(37% 0.044 257.287);
+	--color-neutral-content: oklch(98% 0.003 247.858);
 
-  --color-info: oklch(54% 0.245 262.881);
-  --color-info-content: oklch(97% 0.014 254.604);
+	--color-info: oklch(54% 0.245 262.881);
+	--color-info-content: oklch(97% 0.014 254.604);
 
-  --color-success: oklch(64% 0.2 131.684);
-  --color-success-content: oklch(98% 0.031 120.757);
+	--color-success: oklch(64% 0.2 131.684);
+	--color-success-content: oklch(98% 0.031 120.757);
 
-  --color-warning: oklch(66% 0.179 58.318);
-  --color-warning-content: oklch(98% 0.022 95.277);
+	--color-warning: oklch(66% 0.179 58.318);
+	--color-warning-content: oklch(98% 0.022 95.277);
 
-  --color-error: oklch(59% 0.249 0.584);
-  --color-error-content: oklch(97% 0.014 343.198);
+	--color-error: oklch(59% 0.249 0.584);
+	--color-error-content: oklch(97% 0.014 343.198);
 
-  --radius-selector: 1rem;
-  --radius-field: 1rem;
-  --radius-box: 1rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1.5px;
-  --depth: 0;
-  --noise: 0;
+	--radius-selector: 1rem;
+	--radius-field: 1rem;
+	--radius-box: 1rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1.5px;
+	--depth: 0;
+	--noise: 0;
 
---rating-gradient-0:  oklch(36% 0.44  24);  /* deep vivid red (rare) */
---rating-gradient-1:  oklch(42% 0.42  28);  /* strong red */
---rating-gradient-2:  oklch(46% 0.40  36);  /* red -> red-orange */
---rating-gradient-3:  oklch(50% 0.38  46);  /* orange-red */
---rating-gradient-4:  oklch(67.195% 0.20196 42.194);  /* vivid orange */
---rating-gradient-5:  oklch(74.177% 0.16429 66.652);  /* warm yellowish-orange */
---rating-gradient-6:  oklch(96.479% 0.21188 110.946);   /* PURE YELLOW (bright and distinct) */
---rating-gradient-7:  oklch(88.732% 0.23954 130.348);  /* yellow -> yellow-green */
---rating-gradient-8:  oklch(69.251% 0.19246 132.172);  /* greenish-yellow */
---rating-gradient-9:  oklch(64.778% 0.22041 142.511);  /* medium green */
---rating-gradient-10: oklch(49.042% 0.16633 142.523);  /* deep green (rare) */
+	--rating-gradient-0: oklch(36% 0.44 24);
+	--rating-gradient-1: oklch(42% 0.42 28);
+	--rating-gradient-2: oklch(46% 0.4 36);
+	--rating-gradient-3: oklch(50% 0.38 46);
+	--rating-gradient-4: oklch(67.195% 0.20196 42.194);
+	--rating-gradient-5: oklch(74.177% 0.16429 66.652);
+	--rating-gradient-6: oklch(96.479% 0.21188 110.946);
+	--rating-gradient-7: oklch(88.732% 0.23954 130.348);
+	--rating-gradient-8: oklch(69.251% 0.19246 132.172);
+	--rating-gradient-9: oklch(64.778% 0.22041 142.511);
+	--rating-gradient-10: oklch(49.042% 0.16633 142.523);
 
+	/* MINIMAL ALIASES — map daisyUI / app names to your source tokens */
+	--primary: var(--color-primary);
+	--primary-foreground: var(--color-primary-content);
 
-  /* MINIMAL ALIASES — map daisyUI / app names to your source tokens */
-  --primary: var(--color-primary);
-  --primary-foreground: var(--color-primary-content);
+	--secondary: var(--color-secondary);
+	--secondary-foreground: var(--color-secondary-content);
 
-  --secondary: var(--color-secondary);
-  --secondary-foreground: var(--color-secondary-content);
+	--accent: var(--color-accent);
+	--accent-foreground: var(--color-accent-content);
 
-  --accent: var(--color-accent);
-  --accent-foreground: var(--color-accent-content);
+	--neutral: var(--color-neutral);
+	--neutral-foreground: var(--color-neutral-content);
 
-  --neutral: var(--color-neutral);
-  --neutral-foreground: var(--color-neutral-content);
+	--base-100: var(--color-base-100);
+	--base-200: var(--color-base-200);
+	--base-300: var(--color-base-300);
+	--base-content: var(--color-base-content);
 
-  --base-100: var(--color-base-100);
-  --base-200: var(--color-base-200);
-  --base-300: var(--color-base-300);
-  --base-content: var(--color-base-content);
+	--info: var(--color-info);
+	--info-content: var(--color-info-content);
 
-  --info: var(--color-info);
-  --info-content: var(--color-info-content);
+	--success: var(--color-success);
+	--success-content: var(--color-success-content);
 
-  --success: var(--color-success);
-  --success-content: var(--color-success-content);
+	--warning: var(--color-warning);
+	--warning-content: var(--color-warning-content);
 
-  --warning: var(--color-warning);
-  --warning-content: var(--color-warning-content);
+	--error: var(--color-error);
+	--error-content: var(--color-error-content);
 
-  --error: var(--color-error);
-  --error-content: var(--color-error-content);
+	--input: var(--base-300);
+	--border-width: var(--border);
 
-  --input: var(--base-300);
-  --border-width: var(--border);
+	/* ring and rounded names daisyUI will often use */
+	--ring: color-mix(in srgb, var(--primary) 45%, transparent);
+	--rounded-box: var(--radius-box);
+	--rounded-btn: var(--radius-field);
+	--rounded-badge: var(--size-field);
 
-  /* ring and rounded names daisyUI will often use */
-  --ring: color-mix(in srgb, var(--primary) 45%, transparent);
-  --rounded-box: var(--radius-box);
-  --rounded-btn: var(--radius-field);
-  --rounded-badge: var(--size-field);
+	/* helpful app-level fallbacks */
+	--color-background: var(--base-100);
+	--color-foreground: var(--base-content);
 
-  /* helpful app-level fallbacks */
-  --color-background: var(--base-100);
-  --color-foreground: var(--base-content);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
 
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--error);
+	--color-destructive-foreground: var(--error-content);
 
-  --color-destructive: var(--error);
-  --color-destructive-foreground: var(--error-content);
-
-  --color-border: var(--border-width);
-  --color-input: var(--input);
+	--color-border: var(--border-width);
+	--color-input: var(--input);
 }
 
 /* base fallbacks (unchanged) */
 @layer base {
-  :root {
-    --color-background: var(--base-100, white);
-    --color-foreground: var(--base-content, black);
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-secondary: var(--secondary);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-muted: var(--base-200);
-    --color-muted-foreground: var(--base-content);
-    --color-accent: var(--accent);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-destructive: var(--error);
-    --color-destructive-foreground: var(--error-content);
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
-    --radius-default: var(--radius-box);
-  }
+	:root {
+		--color-background: var(--base-100, white);
+		--color-foreground: var(--base-content, black);
+		--color-primary: var(--primary);
+		--color-primary-foreground: var(--primary-foreground);
+		--color-secondary: var(--secondary);
+		--color-secondary-foreground: var(--secondary-foreground);
+		--color-muted: var(--base-200);
+		--color-muted-foreground: var(--base-content);
+		--color-accent: var(--accent);
+		--color-accent-foreground: var(--accent-foreground);
+		--color-destructive: var(--error);
+		--color-destructive-foreground: var(--error-content);
+		--color-border: var(--border);
+		--color-input: var(--input);
+		--color-ring: var(--ring);
+		--radius-default: var(--radius-box);
+	}
 }
 
 @layer utilities {
-  @for $i from 0 through 10 {
-    .text-rating-gradient-#{$i}  { color: var(--rating-gradient-#{$i}) !important; }
-    .bg-rating-gradient-#{$i}    { background-color: var(--rating-gradient-#{$i}) !important; }
-    .border-rating-gradient-#{$i} { border-color: var(--rating-gradient-#{$i}) !important; }
-    .text-rating-fg-#{$i}        { color: var(--rating-fg-#{$i}) !important; }
-  }
-}
+	@for $i from 0 through 10 {
+		.text-rating-gradient-#{$i} {
+			color: var(--rating-gradient-#{$i}) !important;
+		}
 
+		.bg-rating-gradient-#{$i} {
+			background-color: var(--rating-gradient-#{$i}) !important;
+		}
+
+		.border-rating-gradient-#{$i} {
+			border-color: var(--rating-gradient-#{$i}) !important;
+		}
+
+		.text-rating-fg-#{$i} {
+			color: var(--rating-fg-#{$i}) !important;
+		}
+	}
+}
 
 /* small body defaults that use your theme variables */
 body {
