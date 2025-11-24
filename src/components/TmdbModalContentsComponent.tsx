@@ -47,7 +47,7 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal })
         return () => {
             mounted = false;
         };
-    }, [TmdbImageBaseUrl, data.poster_path]);
+    }, [TmdbImageBaseUrl, data?.poster_path]);
 
     // Guard: do not render UI that touches data fields until data is available.
     if (!data && !error) {

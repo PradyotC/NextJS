@@ -15,7 +15,7 @@ const HeaderComponent: React.FC = () => {
         <div className="navbar bg-base-300 text-base-content shadow-lg border-b border-base-200">
             <div className="navbar-start">
                 <div className="dropdown">
-                    <button tabIndex={0} className="btn btn-ghost btn-circle">
+                    <button aria-label="Open navigation menu" tabIndex={0} className="btn btn-ghost btn-circle">
                         <FontAwesomeIcon icon={faBars} className="h-5 w-5" />
                     </button>
 
@@ -41,11 +41,11 @@ const HeaderComponent: React.FC = () => {
             </div>
 
             <div className="navbar-end space-x-1">
-                <button className="btn btn-ghost btn-circle">
+                <button aria-label="Search" className="btn btn-ghost btn-circle">
                     <FontAwesomeIcon icon={faMagnifyingGlass} className="h-5 w-5" />
                 </button>
 
-                <button className="btn btn-ghost btn-circle">
+                <button aria-label="Notifications" className="btn btn-ghost btn-circle">
                     <div className="indicator">
                         <FontAwesomeIcon icon={faBell} className="h-5 w-5" />
                         <span className="italic badge badge-xs badge-primary indicator-item">3</span>
