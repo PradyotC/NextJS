@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import HeaderComponent from "@/components/headerComponent";
@@ -28,10 +29,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <HeaderComponent />
-        <div>
+        <main role="main">
             {children}
-        </div>
+        </main>
       </body>
+      <SpeedInsights />
     </html>
   );
 }

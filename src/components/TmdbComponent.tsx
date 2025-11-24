@@ -22,6 +22,8 @@ type TabInfo = {
 	icon: IconDefinition;
 };
 
+	const TmdbImageBaseUrl = process.env.NEXT_PUBLIC_TMDBIMAGEBASEURL;
+
 const fetcher = (url: string) =>
 	fetch(url).then((res) => {
 		if (!res.ok) throw new Error("Failed to fetch");
@@ -227,7 +229,6 @@ const TmdbItem: React.FC<{ item: any; onOpen?: () => void }> = ({
 	item,
 	onOpen,
 }) => {
-	const TmdbImageBaseUrl = "https://image.tmdb.org/t/p/w500";
 	return (
 		<div className="hover-3d">
 			<div

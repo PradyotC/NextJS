@@ -18,8 +18,9 @@ const fetcher = (url: string) =>
     });
 
 const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal }) => {
-    const TmdbImageBaseUrl = "https://image.tmdb.org/t/p/w500";
-    const TmdbBackdropBaseUrl = "https://image.tmdb.org/t/p/w1280";
+    const TmdbImageBaseUrl = process.env.NEXT_PUBLIC_TMDBIMAGEBASEURL;
+    const TmdbBackdropBaseUrl = process.env.NEXT_PUBLIC_TMDBBACKDROPBASEURL;
+    const ImdbUrl  = process.env.NEXT_PUBLIC_IMDBURL;
 
     // Hooks must run unconditionally
     const { data, error } = useSWR(`/api/tmdb/movie/${id}`, fetcher, {
@@ -46,7 +47,7 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal })
         return () => {
             mounted = false;
         };
-    }, [data?.poster_path]);
+    }, [TmdbImageBaseUrl, data?.poster_path]);
 
     // Guard: do not render UI that touches data fields until data is available.
     if (!data && !error) {
@@ -198,7 +199,7 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal })
                                         )}
                                         {data.imdb_id && (
                                             <a
-                                                href={`https://www.imdb.com/title/${data.imdb_id}`}
+                                                href={`${ImdbUrl}${data.imdb_id}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="btn btn-outline btn-md rounded-full"
