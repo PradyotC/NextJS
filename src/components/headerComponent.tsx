@@ -15,11 +15,11 @@ const HeaderComponent: React.FC = () => {
         <div className="navbar bg-base-300 text-base-content shadow-lg border-b border-base-200">
             <div className="navbar-start">
                 <div className="dropdown">
-                    <button aria-label="Open navigation menu" tabIndex={0} className="btn btn-ghost btn-circle">
+                    <label tabIndex={0} aria-label="Open navigation menu" className="btn btn-ghost btn-circle">
                         <FontAwesomeIcon icon={faBars} className="h-5 w-5" />
-                    </button>
+                    </label>
 
-                    <ul className="menu menu-sm dropdown-content bg-base-200 text-base-content rounded-box z-10 mt-3 w-52 p-2 shadow">
+                    <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-200 text-base-content rounded-box z-10 mt-3 w-52 p-2 shadow">
                         {navItems.map((item, index) => (
                             <li key={index}>
                                 <Link
