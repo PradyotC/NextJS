@@ -16,59 +16,19 @@ import type * as Prisma from "./prismaNamespace"
 
 
 const config: runtime.GetPrismaClientConfig = {
-  "generator": {
-    "name": "client",
-    "provider": {
-      "fromEnvVar": null,
-      "value": "prisma-client"
-    },
-    "output": {
-      "value": "/Users/pradyot/Desktop/Coding/Nextjs Testing/test-app/prisma/generated",
-      "fromEnvVar": null
-    },
-    "config": {
-      "engineType": "client"
-    },
-    "binaryTargets": [
-      {
-        "fromEnvVar": null,
-        "value": "darwin-arm64",
-        "native": true
-      }
-    ],
-    "previewFeatures": [],
-    "sourceFilePath": "/Users/pradyot/Desktop/Coding/Nextjs Testing/test-app/prisma/schema.prisma",
-    "isCustomOutput": true
-  },
-  "relativePath": "..",
-  "clientVersion": "6.19.0",
-  "engineVersion": "2ba551f319ab1df4bc874a89965d8b3641056773",
-  "datasourceNames": [
-    "db"
-  ],
+  "previewFeatures": [],
+  "clientVersion": "7.1.0",
+  "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "postinstall": false,
-  "inlineDatasources": {
-    "db": {
-      "url": {
-        "fromEnvVar": "DATABASE_URL",
-        "value": null
-      }
-    }
-  },
-  "inlineSchema": "generator client {\n  provider      = \"prisma-client\"\n  engineType    = \"client\"\n  output        = \"./generated\"\n  binaryTargets = [\"native\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Cache {\n  key       String   @id\n  data      Json\n  expireAt  DateTime\n  createdAt DateTime @default(now())\n\n  @@index([expireAt])\n}\n",
-  "inlineSchemaHash": "3c4e653b1b7d6f06b1674d6bdf2784ae54d02f22c4810db0a6948f2648b9f7d4",
-  "copyEngine": true,
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client\"\n  engineType    = \"client\"\n  output        = \"./generated\"\n  binaryTargets = [\"native\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Cache {\n  key       String   @id\n  data      Json\n  expireAt  DateTime\n  createdAt DateTime @default(now())\n\n  @@index([expireAt])\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
     "types": {}
-  },
-  "dirname": ""
+  }
 }
 
 config.runtimeDataModel = JSON.parse("{\"models\":{\"Cache\":{\"fields\":[{\"name\":\"key\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"data\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"expireAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
-config.engineWasm = undefined
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -87,7 +47,6 @@ config.compilerWasm = {
 
 
 
-
 export type LogOptions<ClientOptions extends Prisma.PrismaClientOptions> =
   'log' extends keyof ClientOptions ? ClientOptions['log'] extends Array<Prisma.LogLevel | Prisma.LogDefinition> ? Prisma.GetEvents<ClientOptions['log']> : never : never
 
@@ -103,7 +62,7 @@ export interface PrismaClientConstructor {
    * const caches = await prisma.cache.findMany()
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+   * Read more in our [docs](https://pris.ly/d/client).
    */
 
   new <
@@ -111,7 +70,7 @@ export interface PrismaClientConstructor {
     LogOpts extends LogOptions<Options> = LogOptions<Options>,
     OmitOpts extends Prisma.PrismaClientOptions['omit'] = Options extends { omit: infer U } ? U : Prisma.PrismaClientOptions['omit'],
     ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
-  >(options?: Prisma.Subset<Options, Prisma.PrismaClientOptions> ): PrismaClient<LogOpts, OmitOpts, ExtArgs>
+  >(options: Prisma.Subset<Options, Prisma.PrismaClientOptions> ): PrismaClient<LogOpts, OmitOpts, ExtArgs>
 }
 
 /**
@@ -125,12 +84,12 @@ export interface PrismaClientConstructor {
  * const caches = await prisma.cache.findMany()
  * ```
  * 
- * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client).
+ * Read more in our [docs](https://pris.ly/d/client).
  */
 
 export interface PrismaClient<
   in LogOpts extends Prisma.LogLevel = never,
-  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = Prisma.PrismaClientOptions['omit'],
+  in out OmitOpts extends Prisma.PrismaClientOptions['omit'] = undefined,
   in out ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs
 > {
   [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['other'] }
@@ -154,7 +113,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -166,7 +125,7 @@ export interface PrismaClient<
    * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<number>;
 
@@ -177,7 +136,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -189,7 +148,7 @@ export interface PrismaClient<
    * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
    * ```
    *
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   * Read more in our [docs](https://pris.ly/d/raw-queries).
    */
   $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): Prisma.PrismaPromise<T>;
 
@@ -211,7 +170,6 @@ export interface PrismaClient<
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => runtime.Types.Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<R>
 
-
   $extends: runtime.Types.Extensions.ExtendsHook<"extends", Prisma.TypeMapCb<OmitOpts>, ExtArgs, runtime.Types.Utils.Call<Prisma.TypeMapCb<OmitOpts>, {
     extArgs: ExtArgs
   }>>
@@ -227,7 +185,6 @@ export interface PrismaClient<
   get cache(): Prisma.CacheDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
-export function getPrismaClientClass(dirname: string): PrismaClientConstructor {
-  config.dirname = dirname
+export function getPrismaClientClass(): PrismaClientConstructor {
   return runtime.getPrismaClient(config) as unknown as PrismaClientConstructor
 }
