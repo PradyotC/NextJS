@@ -8,7 +8,9 @@
     "start": "rm -rf .next prisma/generated node_modules package-lock.json && npm install && prisma generate && next build && next start",
     "lint": "eslint",
     "prisma:dev": "npx prisma generate && npx prisma studio",
-    "clean:deps": "rm -rf .next prisma/generated node_modules package-lock.json && npm install && prisma generate"
+    "clean:deps": "rm -rf .next prisma/generated node_modules package-lock.json && npm install && prisma generate",
+    "dev:chrome": "next dev & open -a 'Google Chrome' http://localhost:3000",
+    "dev:safari": "next dev & open -a Safari http://localhost:3000"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -18,22 +20,26 @@
     "@fortawesome/react-fontawesome": "^3.1.0",
     "@prisma/adapter-pg": "^6.19.0",
     "@vercel/speed-insights": "^1.2.0",
+    "@wavesurfer/react": "^1.0.11",
     "daisyui": "^5.5.5",
-    "next": "16.0.3",
+    "next": "^16.0.7",
     "pg": "^8.12.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "swr": "^2.3.6"
+    "swr": "^2.3.6",
+    "wavesurfer.js": "^7.11.1",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@prisma/client": "^6.19.0",
+    "@prisma/client": "^7.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.10.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "baseline-browser-mapping": "^2.9.4",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
-    "prisma": "^6.19.0",
+    "prisma": "^7.1.0",
     "sass": "^1.94.0",
     "scss": "^0.2.4",
     "tailwindcss": "^4",

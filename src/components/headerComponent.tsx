@@ -9,10 +9,14 @@ const HeaderComponent: React.FC = () => {
         { name: "Home", path: "/" },
         { name: "TMDB", path: "/tmdb" },
         { name: "Test", path: "/test" },
+        { name: "Jamendo", path: "/jamendo"},
+        { name: "Freesound", path: "/freesound"},
+        { name: "News", path: "/news"},
+        { name: "Stocks", path: "/stocks"},
     ];
 
     return (
-        <div className="navbar bg-base-300 text-base-content shadow-lg border-b border-base-200">
+        <div className="navbar bg-base-300 text-base-content shadow-lg border-b border-base-200 sticky top-0 z-30">
             <div className="navbar-start">
                 <div className="dropdown">
                     <label tabIndex={0} aria-label="Open navigation menu" className="btn btn-ghost btn-circle">
