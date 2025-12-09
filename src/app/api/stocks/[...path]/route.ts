@@ -2,6 +2,8 @@
 import { NextResponse } from "next/server";
 import { getCached, setCached } from "@/lib/server/prismaCache";
 
+export const runtime = "nodejs";
+
 const baseurl = process.env.ALPHAVANTAGE_BASE_URL!;
 const api_key = process.env.ALPHAVANTAGE_API_KEY!;
 const ONE_DAY = 3600 * 24;
