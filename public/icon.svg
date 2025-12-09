@@ -1,0 +1,19 @@
+<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <path d="M 45,60 L 120,10 L 195,60 L 120,110 Z 
+             M 85,60 L 120,35 L 155,60 L 120,85 Z"
+        style="fill:skyblue;fill-rule:evenodd;" />
+
+    <polygon points="120,35 120,70 110,78 85,60 120,35"
+        style="fill:#39A9D9" />
+
+    <polygon points="120,35 120,70 130,78 155,60 120,35"
+        style="fill:lightblue" />
+
+    <polygon points="45,60 45,210 75,230 75,115 120,145 120,110 45,60"
+        style="fill:lightblue" />
+    
+    <polygon points="75,230 105,210 105,135 75,115 75,230"
+        style="fill:#39A9D9" />
+    <polygon points="120,110 195,60 195,95 120,145 120,110"
+        style="fill:#39A9D9" />
+</svg>
