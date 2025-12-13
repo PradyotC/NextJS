@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 const baseurl = process.env.ALPHAVANTAGE_BASE_URL!;
 const api_key = process.env.ALPHAVANTAGE_API_KEY!;
-const ONE_DAY = 3600 * 24;
+const ONE_HOUR = 3600;
 
 function buildEndpoint(finalPath: string, params: URLSearchParams) {
     // ensure finalPath has a leading slash
@@ -51,7 +51,7 @@ export async function getStocksData(reqUrl: string) {
     const response = await fetch(endpoint, {
         method: "GET",
         redirect: "follow",
-        next: { revalidate: 86400 },
+        next: { revalidate: ONE_HOUR },
     });
 
     if (!response.ok) {
@@ -59,7 +59,7 @@ export async function getStocksData(reqUrl: string) {
     }
 
     const data = await response.json();
-    await setCached(cacheKey, data, ONE_DAY);
+    await setCached(cacheKey, data, ONE_HOUR);
     return data;
 }
 
