@@ -5,11 +5,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImdb } from "@fortawesome/free-brands-svg-icons";
 import React from "react";
 
-
 type TmdbModalContentsProps = {
     id: number;
     closeModal: () => void;
-}
+};
 
 const fetcher = (url: string) =>
     fetch(url).then((res) => {
@@ -17,12 +16,14 @@ const fetcher = (url: string) =>
         return res.json();
     });
 
-const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal }) => {
+const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
+    id,
+    closeModal,
+}) => {
     const TmdbImageBaseUrl = process.env.NEXT_PUBLIC_TMDBIMAGEBASEURL;
     const TmdbBackdropBaseUrl = process.env.NEXT_PUBLIC_TMDBBACKDROPBASEURL;
-    const ImdbUrl  = process.env.NEXT_PUBLIC_IMDBURL;
+    const ImdbUrl = process.env.NEXT_PUBLIC_IMDBURL;
 
-    // Hooks must run unconditionally
     const { data, error } = useSWR(`/api/tmdb/movie/${id}`, fetcher, {
         refreshInterval: 15 * 60 * 1000,
         revalidateOnFocus: true,
@@ -31,37 +32,45 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal })
 
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-    // safe effect — depends on data?.poster_path and exits early if missing
     useEffect(() => {
-        if (!data?.poster_path) {
-            // ensure we don't try to preload if there's no poster
-            return;
-        }
-
+        if (!data?.poster_path) return;
         let mounted = true;
         const img = new window.Image();
         img.src = `${TmdbImageBaseUrl}${data.poster_path}`;
         img.onload = () => mounted && setIsImageLoaded(true);
         img.onerror = () => mounted && setIsImageLoaded(true);
-
-        return () => {
-            mounted = false;
-        };
+        return () => { mounted = false; };
     }, [TmdbImageBaseUrl, data?.poster_path]);
 
-    // Guard: do not render UI that touches data fields until data is available.
+    // Handle Escape key
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") closeModal();
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [closeModal]);
+
+    // --- Loading State ---
     if (!data && !error) {
         return (
-            <div className="p-6 text-center">
-                <span className="loading text-white text-extrabold loading-spinner loading-xl"></span>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                {/* Use base-content to show loading spinner in correct theme color */}
+                <div className="p-3 rounded-lg bg-base-100 text-base-content text-center">
+                    <span className="loading text-base-content text-extrabold loading-spinner loading-xl"></span>
+                </div>
             </div>
         );
     }
 
+    // --- Error State ---
     if (error) {
         return (
-            <div className="p-6 text-center text-error">
-                Failed to load data.
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div className="text-center text-error bg-base-100 p-6 rounded-lg shadow-xl">
+                    Failed to load data.
+                    <button className="btn btn-sm btn-ghost ml-4" onClick={closeModal}>Close</button>
+                </div>
             </div>
         );
     }
@@ -90,132 +99,164 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({ id, closeModal })
         arr && arr.length ? arr.map((g) => g.name).join(", ") : "—";
 
     return (
-        <React.Fragment>
-            <div className="modal-box bg-black/0  max-w-4xl p-0">
-                <form method="dialog">
+        // OVERLAY WRAPPER
+        // 1. z-[100]: Ensures it covers the header (z-30).
+        // 2. items-end: Aligns modal to BOTTOM on mobile.
+        // 3. sm:items-center: Aligns modal to CENTER on desktop.
+        // 4. bg-black/60: Dark backdrop regardless of theme.
+        <div
+            className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={closeModal}
+        >
+            {/* MODAL CARD */}
+            {/* 1. bg-base-100: Uses Theme Color (White in Light, Dark in Dark). REMOVED data-theme="dark". */}
+            {/* 2. rounded-t-2xl sm:rounded-xl: Rounded top on mobile, fully rounded on desktop. */}
+            {/* 3. max-h-[90vh]: Ensures it fits on screen. */}
+            <div
+
+                className="relative w-full sm:max-w-4xl bg-base-100 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto flex flex-col rounded-t-2xl rounded-b-none sm:rounded-xl transition-all"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Close Button */}
+
+
+                {/* HEADER IMAGE (Backdrop) */}
+                <div
+                    data-theme="dark"
+                    className="relative w-full shrink-0">
+                    {data.backdrop_path ? (
+                        // Height adapted for mobile (h-44) vs desktop (h-64)
+                        <div className="relative h-44 md:h-64 w-full bg-base-200">
+                            <Image
+                                src={`${TmdbBackdropBaseUrl}${data.backdrop_path}`}
+                                alt={`${data.title} Backdrop`}
+                                fill
+                                className="object-cover opacity-90" // Increased opacity for vibrancy
+                            />
+                            {/* Gradient to blend into the card background (base-100) */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-base-100 via-transparent to-transparent" />
+
+                            <div className="absolute left-4 bottom-4 pr-16">
+                                {/* Title adapts to theme via base-content, OR force visibility if over image */}
+                                {/* Using text-white/base-content mix depending on contrast needs */}
+                                <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow-md">
+                                    {data.title}
+                                </h1>
+                                {data.tagline && (
+                                    <p className="text-sm opacity-90 text-gray-200 italic drop-shadow-sm">{data.tagline}</p>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="h-44 md:h-64 bg-base-200 flex items-center justify-center">
+                            <h1 className="text-2xl font-bold text-base-content">{data.title}</h1>
+                        </div>
+                    )}
                     <button
-                        className="btn btn-lg btn-circle btn-ghost bg-black/50 absolute right-4 top-4 z-30"
-                        onClick={() => {
-                            closeModal();
-                        }}
+                        className="btn btn-md btn-circle btn-ghost bg-black/30 hover:bg-black/50 absolute right-4 top-4 z-50 text-white border-none"
+                        onClick={closeModal}
                     >
                         ✕
                     </button>
-                </form>
-                <div className="w-full max-w-4xl mx-auto">
-                    <div className="card bg-base-100 rounded-lg shadow-lg">
-                        {/* Backdrop */}
-                        <div className="rounded-lg overflow-hidden mb-4 shadow-md">
-                            {data.backdrop_path ? (
-                                <div className="relative h-44 md:h-64 w-full bg-base-200">
+                </div>
+
+                {/* CONTENT BODY */}
+                <div className="card-body p-4 md:p-6 bg-base-100 text-base-content">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        {/* Poster */}
+                        <div className="hidden sm:flex sm:w-1/4 md:w-1/3 items-center">
+                            <div className="overflow-hidden shadow">
+                                {!isImageLoaded ? (
+                                    <div className="rounded-lg h-56 md:h-80 w-full bg-base-300 animate-pulse" />
+                                ) : data.poster_path ? (
                                     <Image
-                                        src={`${TmdbBackdropBaseUrl}${data.backdrop_path}`}
-                                        alt={`${data.title} Backdrop`}
-                                        fill
-                                        className="object-cover opacity-60"
+                                        src={`${TmdbImageBaseUrl}${data.poster_path}`}
+                                        alt={`${data.title} Poster`}
+                                        width={300}
+                                        height={300}
+                                        className="rounded-lg border border-base-content/70 object-cover"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-base-100/90" />
-                                    <div className="absolute left-4 bottom-4">
-                                        <h1 className="text-2xl md:text-3xl font-bold">
-                                            {data.title}
-                                        </h1>
-                                        {data.tagline && (
-                                            <p className="text-sm opacity-80">{data.tagline}</p>
-                                        )}
+                                ) : (
+                                    <div className="h-56 md:h-80 w-full bg-gray-700 flex items-center justify-center text-white">
+                                        No Poster
                                     </div>
-                                </div>
-                            ) : (
-                                <div className="h-44 md:h-64 bg-base-200 flex items-center justify-center">
-                                    <h1 className="text-2xl">{data.title}</h1>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
 
-                        {/* Body */}
-                        <div className="card-body p-4 md:p-6">
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                {/* Poster */}
-                                <div className="sm:w-1/4 w-0 md:w-1/3 flex items-center">
-                                    <div className="rounded-lg overflow-hidden shadow">
-                                        {!isImageLoaded ? (
-                                            <div className="h-56 md:h-80 w-full bg-base-300 animate-pulse" />
-                                        ) : data.poster_path ? (
-                                            <Image
-                                                src={`${TmdbImageBaseUrl}${data.poster_path}`}
-                                                alt={`${data.title} Poster`}
-                                                width={300}
-                                                height={300}
-                                                className="object-cover"
-                                            />
-                                        ) : (
-                                            <div className="h-56 md:h-80 w-full bg-gray-700 flex items-center justify-center text-white">
-                                                No Poster
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                        {/* Details */}
+                        <div className="w-full sm:w-3/4 md:w-2/3 flex flex-col justify-between">
+                            <div>
+                                <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:justify-between pt-2 flex-col-reverse">
+                                    <h3 className="flex items-center text-xl font-extrabold mt-1 sm:mt-0">Overview</h3>
 
-                                {/* Details */}
-                                <div className="w-full sm:w-3/4 md:w-2/3 flex flex-col justify-between">
-                                    <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:justify-between py-3">
-                                        <div className="text-sm flex items-center opacity-80">{genreList(data.genres)}</div>
-                                        <div className="flex gap-3 whitespace-nowrap">
-                                            <div className="badge badge-outline px-3">
+                                    <div className="flex w-full sm:w-auto justify-between gap-2 mb-1 sm:mb-0 items-center">
+                                        
+                                        {/* LEFT GROUP: Date & Language */}
+                                        <div className="flex gap-2">
+                                            <div className="badge badge-outline px-3 font-mono">
                                                 {formatDate(data.release_date)}
                                             </div>
-                                            <div className="badge badge-outline px-3">
-                                                {formatRuntime(data.runtime)}
-                                            </div>
-                                            <div className="badge badge-outline px-3">
-                                                {data.original_language?.toUpperCase() ?? "—"}
+                                            <div className="badge badge-outline px-3 uppercase">
+                                                {data.original_language ?? "EN"}
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="mt-2">
-                                        <h3 className="text-xl font-extrabold mb-2">Overview</h3>
-                                        <p className="text-sm">{data.overview}</p>
-                                    </div>
-                                    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                                        <div>
-                                            <p className="text-xs opacity-70">Status</p>
-                                            <p className="font-medium">{data.status}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs opacity-70">Original Title</p>
-                                            <p className="font-medium">{data.original_title}</p>
-                                        </div>
-                                    </div>
 
-                                    <div className="my-5 flex justify-end gap-3">
-                                        {data.homepage && (
-                                            <a
-                                                href={data.homepage}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="btn btn-primary btn-md"
-                                            >
-                                                Watch
-                                            </a>
-                                        )}
-                                        {data.imdb_id && (
-                                            <a
-                                                href={`${ImdbUrl}${data.imdb_id}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="btn btn-outline btn-md rounded-full"
-                                            >
-                                                <FontAwesomeIcon icon={faImdb} />
-                                                IMDB
-                                            </a>
-                                        )}
+                                        {/* RIGHT GROUP: Runtime */}
+                                        {/* On mobile, this gets pushed to the far right. On desktop, it sits next to the others. */}
+                                        <div className="badge badge-outline px-3 font-mono">
+                                            {formatRuntime(data.runtime)}
+                                        </div>
                                     </div>
                                 </div>
+                                <p className="mt-2 mb-4 text-sm">{data.overview}</p>
+                            </div>
+
+                            <div className="flex flex-col gap-4 text-sm mt-2 p-3 bg-base-200 rounded-lg">
+                                <div>
+                                    <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Genre</p>
+                                    <p className="font-medium">{genreList(data.genres)}</p>
+                                </div>
+                                <div className="grid grid-cols-2">
+                                    <div>
+                                        <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Status</p>
+                                        <p className="font-medium">{data.status}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Original Title</p>
+                                        <p className="truncate font-medium" title={data.original_title}>{data.original_title}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="my-5 flex justify-end gap-3">
+                                {data.homepage && (
+                                    <a
+                                        href={data.homepage}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-primary btn-sm md:btn-md"
+                                    >
+                                        Watch
+                                    </a>
+                                )}
+                                {data.imdb_id && (
+                                    <a
+                                        href={`${ImdbUrl}${data.imdb_id}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn btn-outline btn-sm md:btn-md gap-2"
+                                    >
+                                        <FontAwesomeIcon icon={faImdb} className="text-lg" />
+                                        IMDB
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </React.Fragment>
+        </div>
     );
 };
 
