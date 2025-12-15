@@ -127,7 +127,7 @@ const TmdbComponent: React.FC = () => {
                                         <span className="loading loading-spinner text-primary mr-2"></span>
                                         <span>Tab content will load when selected</span>
                                     </div>
-                                )}
+                                )}-
                             </div>
                         </React.Fragment>
                     );
