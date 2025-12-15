@@ -49,20 +49,15 @@ function StockCard({ item, idx }: { item: any; idx: number }) {
             ? faArrowTrendDown
             : faChartLine;
     const trendColor = isPositive
-        ? "text-green-400"
+        ? "text-success"
         : isNegative
-            ? "text-red-400"
+            ? "text-error"
             : "text-gray-400";
     const pctColor = isNegative
-        ? "text-red-400"
+        ? "text-error"
         : isPositive
-            ? "text-green-400"
+            ? "text-success"
             : "text-gray-300";
-    const hoverClass = isNegative
-        ? "hover:border-red-400"
-        : isPositive
-            ? "hover:border-green-400"
-            : "hover:border-gray-400";
 
     const uid = `${sanitizeId(String(item?.ticker ?? "unk"))}-${idx}`;
 
@@ -72,18 +67,18 @@ function StockCard({ item, idx }: { item: any; idx: number }) {
             className="group block w-full focus:outline-none rounded-xl"
         >
             <article
-                className={`relative w-full px-2 py-4 hover:bg-gray-800 border border-transparent hover:border-gray-700/50 ${hoverClass} rounded-xl transition-all duration-200 flex items-center justify-between group-focus:ring-1 group-focus:ring-indigo-500`}
+                className={`relative w-full px-2 py-4 hover:bg-base-300 border border-transparent hover:border-base-400/50 rounded-xl transition-all duration-200 flex items-center justify-between group-focus:ring-1 group-focus:ring-indigo-400`}
                 role="article"
                 aria-labelledby={`ticker-${uid}`}
             >
                 <div className="flex items-center gap-3 lg:gap-2">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700/30 text-sm font-bold text-gray-500 group-hover:text-white group-hover:bg-gray-700 transition-colors">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-400/30 text-sm font-bold text-base-content group-hover:text-base-content group-hover:bg-gray-400/60 transition-colors">
                         {idx + 1}
                     </span>
                     <div>
                         <h3
                             id={`ticker-${uid}`}
-                            className="font-bold text-lg text-white flex items-center gap-2"
+                            className="font-bold text-lg text-base-content flex items-center gap-2"
                         >
                             {item?.ticker ?? "—"}
                             <FontAwesomeIcon
@@ -92,14 +87,14 @@ function StockCard({ item, idx }: { item: any; idx: number }) {
                                 aria-hidden
                             />
                         </h3>
-                        <p className="text-xs text-blue-500 mt-0.5 font-mono">
+                        <p className="text-xs text-info mt-0.5 font-mono">
                             Vol: {item?.volume ?? "—"}
                         </p>
                     </div>
                 </div>
 
                 <div className="text-right">
-                    <p className="text-white font-mono font-semibold text-lg">
+                    <p className="text-base-content font-mono font-semibold text-lg">
                         ${formatCurrency(priceNum)}
                     </p>
                     <p
@@ -174,18 +169,18 @@ export default async function Page() {
         ]
         
         return (
-            <div className="min-h-screen text-white p-4 lg:p-8">
+            <div className="min-h-screen text-base-content p-4 lg:p-8">
                 <header className="text-center mb-10 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-900/20 border border-yellow-700/30 text-yellow-500 text-xs font-medium">
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md bg-warning/60 border border-2 border-warning text-base-content text-xs font-bold">
                         <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
                         <span>Data delayed approx. 1 hour • Not real-time</span>
                     </div>
 
-                    <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+                    <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight text-base-content">
                         Market Snapshot
                     </h1>
 
-                    <p className="text-gray-400 max-w-2xl mx-auto text-sm lg:text-base">
+                    <p className="text-base-content/80 max-w-2xl mx-auto text-sm lg:text-base">
                         Top gainers, losers, and most active stocks in the US market.
                     </p>
                 </header>
@@ -204,8 +199,8 @@ export default async function Page() {
         
         // Basic loading placeholder for SSR failure
         const LoadingPlaceholder = () => (
-            <div className="p-6 border border-gray-700 bg-gray-900/50 rounded-2xl animate-pulse">
-                <div className="h-4 bg-gray-700 rounded w-1/4 mb-4"></div>
+            <div className="p-6 border border-base-200 bg-base-100/50 rounded-2xl animate-pulse">
+                <div className="h-4 bg-base-200 rounded w-1/4 mb-4"></div>
                 <div className="space-y-3">
                     <div className="grid grid-cols-3 gap-4">
                         <div className="h-2 bg-gray-700 rounded col-span-2"></div>
@@ -217,7 +212,7 @@ export default async function Page() {
         );
 
         return (
-            <div className="m-5 p-3 text-red-400 space-y-4">
+            <div className="m-5 p-3 text-error space-y-4">
                 <p>Unable to load stock data right now. Showing fallback content...</p>
                 <div className="max-w-7xl mx-auto grid gap-6 lg:grid-cols-3">
                     <LoadingPlaceholder />

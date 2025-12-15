@@ -33,6 +33,26 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
     useEffect(() => {
+        // Save current scroll position
+        const scrollY = window.scrollY;
+
+        // Lock scroll
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = "100%";
+
+        return () => {
+            // Restore scroll
+            document.body.style.position = "";
+            document.body.style.top = "";
+            document.body.style.width = "";
+
+            window.scrollTo(0, scrollY);
+        };
+    }, []);
+
+
+    useEffect(() => {
         if (!data?.poster_path) return;
         let mounted = true;
         const img = new window.Image();
@@ -105,7 +125,7 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
         // 3. sm:items-center: Aligns modal to CENTER on desktop.
         // 4. bg-black/60: Dark backdrop regardless of theme.
         <div
-            className="fixed inset-0 z-[100] flex justify-center items-end sm:items-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            className="fixed inset-0 z-[60] flex justify-center items-end sm:items-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-20"
             onClick={closeModal}
         >
             {/* MODAL CARD */}
@@ -191,7 +211,7 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                                     <h3 className="flex items-center text-xl font-extrabold mt-1 sm:mt-0">Overview</h3>
 
                                     <div className="flex w-full sm:w-auto justify-between gap-2 mb-1 sm:mb-0 items-center">
-                                        
+
                                         {/* LEFT GROUP: Date & Language */}
                                         <div className="flex gap-2">
                                             <div className="badge badge-outline px-3 font-mono">

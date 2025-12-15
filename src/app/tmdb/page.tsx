@@ -1,11 +1,5 @@
-"use client"
+import { redirect } from "next/navigation";
 
-import TmdbComponent from "@/components/TmdbComponent";
-
-const TmdbPage:React.FC = () =>{
-    return (
-        <TmdbComponent/>
-    );
+export default function TmdbIndexRedirect() {
+  redirect("/tmdb/Now-Playing");
 }
-
-export default TmdbPage;

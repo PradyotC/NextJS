@@ -26,12 +26,19 @@ export default function StockSectionClient({ item }: { item: StockSectionData })
     const { secName, secIcon, secSubHeading, renderedList, secColor } = item;
     const chevronIcon = isOpen ? faChevronUp : faChevronDown;
 
-    const colorClass = `text-${secColor}-400`;
+    const colors: Record<string, string>= {
+        green: "success",
+        red: "error",
+        blue: "info",
+    };
+
+    const colorClass = `text-${colors[secColor]}`;
+
 
     return (
         <section
             // Padding reset for section wrapper
-            className="py-5 px-3 lg:px-1.5 border border-gray-800 bg-gray-900/50 rounded-2xl backdrop-blur-sm"
+            className="py-5 px-3 lg:px-1.5 border border-2 border-base-400 bg-base-200/70 rounded-2xl backdrop-blur-sm"
             aria-labelledby={`${secName}-heading`}
         >
             {/* 1. Header Row (Visually changes layout based on screen size) */}
@@ -52,7 +59,7 @@ export default function StockSectionClient({ item }: { item: StockSectionData })
                         <FontAwesomeIcon icon={secIcon} className="w-5 h-5" />
                         {secName}
                     </h2>
-                    <p className="text-sm text-gray-400">{secSubHeading}</p>
+                    <p className="text-sm text-base-content/60">{secSubHeading}</p>
                 </div>
                 
                 {/* 1B. Clickable Chevron/Button (Only visible on mobile/tablet) */}
@@ -66,7 +73,7 @@ export default function StockSectionClient({ item }: { item: StockSectionData })
                 >
                     <FontAwesomeIcon
                         icon={chevronIcon}
-                        className={`w-4 h-4 p-2 mr-2 text-gray-400 transition-transform duration-300 rounded-full hover:bg-gray-700/50`}
+                        className={`w-4 h-4 p-2 mr-2 text-base-content/80 transition-transform duration-300 rounded-full hover:bg-base-content/90`}
                     />
                 </button>
             </div>

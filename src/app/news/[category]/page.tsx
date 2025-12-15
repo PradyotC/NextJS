@@ -30,74 +30,83 @@ export default async function NewsCategoryPage({ params }: Props) {
 	}
 
 	return (
-		<>
-			<h2 className="text-2xl font-bold mb-6 text-white">
-				Top {data.articles.length} Articles in {toSentenceCase(cat)}
-			</h2>
-
-			<ul className="space-y-6">
-				{data.articles.map((r: any) => (
-					<li
-						key={r.id ?? r.url}
-						className="p-4 bg-gray-700 border border-gray-600 rounded-xl transition duration-300 ease-in-out hover:shadow-blue-500/50 hover:shadow-2xl hover:border-blue-400"
+		<ul className="space-y-6">
+			{data.articles.map((r: any) => (
+				<li
+					key={r.id ?? r.url}
+					className="
+						p-5
+						bg-base-300
+						border border-base-400
+						rounded-xl
+						transition-all duration-300 ease-in-out
+						hover:border-base-500
+						hover:shadow-base-500
+					"
+				>
+					<a
+						href={r.url}
+						target="_blank"
+						rel="noreferrer"
+						className="block"
 					>
-						<a href={r.url} target="_blank" rel="noreferrer" className="block text-white">
-							<h3 className="text-xl font-semibold mb-3 hover:text-blue-300 transition-colors">
-								{r.title}
-							</h3>
-						</a>
+						<h3 className="text-xl font-semibold mb-3 text-base-content transition-colors hover:text-base-500">
+							{r.title}
+						</h3>
+					</a>
 
-						<div className="flex flex-col sm:flex-row items-start sm:items-stretch gap-4">
-							<div className="w-full sm:w-5/12 rounded-2xl overflow-hidden flex-shrink-0 aspect-video bg-gray-800 flex items-center justify-center">
-								<React.Suspense fallback={<div className="w-full h-44 bg-gray-800" aria-hidden="true" />}>
-									<ImageWithChecks
-										src={r.image ?? ""}
-										alt={r.title ?? "news image"}
-										// consider using lazy loading for non-critical images
-										loading="eager"
-										width={800}
-										height={450}
-										className="w-full h-full object-cover"
-										wrapperClassName="w-full h-full"
-									/>
-								</React.Suspense>
+					<div className="flex flex-col sm:flex-row gap-4">
+						<div className="w-full sm:w-5/12 rounded-2xl overflow-hidden flex-shrink-0 aspect-video bg-base-400 flex items-center justify-center">
+							<React.Suspense
+								fallback={<div className="w-full h-full bg-base-400" />}
+							>
+								<ImageWithChecks
+									src={r.image ?? ""}
+									alt={r.title ?? "news image"}
+									loading="eager"
+									width={800}
+									height={450}
+									className="w-full h-full object-cover"
+									wrapperClassName="w-full h-full"
+								/>
+							</React.Suspense>
+						</div>
+
+						<div className="flex-1 flex flex-col justify-between px-1 sm:px-3">
+							<div className="text-base-content/70 mb-3 line-clamp-3">
+								{r.description ?? "No description available."}
 							</div>
 
-							<div className="flex-1 flex flex-col justify-between p-1 sm:p-3">
-								<div className="text-gray-300 mb-3 line-clamp-3">
-									{r.description ?? "No description available."}
-								</div>
-
-								<div className="w-full text-right text-sm text-gray-400 pt-2 border-t border-gray-700">
-									<span className="font-medium text-blue-400">
-										{r.source?.name ? (
-											r.source?.url ? (
-												<a href={r.source.url} target="_blank" rel="noreferrer">
-													{r.source.name}
-												</a>
-											) : (
-												r.source.name
-											)
+							<div className="pt-3 border-t border-base-500 text-sm text-right text-base-content/70">
+								<span className="font-extrabold text-base-500">
+									{r.source?.name ? (
+										r.source?.url ? (
+											<a href={r.source.url} target="_blank" rel="noreferrer">
+												{r.source.name}
+											</a>
 										) : (
-											"Unknown"
-										)}
-									</span>
-									{" • "}
-									<span>
-										{r.publishedAt
-											? new Date(r.publishedAt).toLocaleString(undefined, {
-												year: "numeric",
-												month: "short",
-												day: "numeric",
-											})
-											: "unknown"}
-									</span>
-								</div>
+											r.source.name
+										)
+									) : (
+										"Unknown"
+									)}
+								</span>
+								{" • "}
+								<span>
+									{r.publishedAt
+										? new Date(r.publishedAt).toLocaleDateString(undefined, {
+											year: "numeric",
+											month: "short",
+											day: "numeric",
+										})
+										: "unknown"}
+								</span>
 							</div>
 						</div>
-					</li>
-				))}
-			</ul>
-		</>
+					</div>
+				</li>
+			))}
+		</ul>
+
 	);
 }
