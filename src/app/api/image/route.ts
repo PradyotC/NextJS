@@ -107,7 +107,7 @@ export async function GET(req: Request) {
 
     } catch (fetchError) {
       // Network error or all retries failed
-      console.error("Image verification/proxy failed:", fetchError);
+      console.log("Image verification/proxy failed:", fetchError);
 
       if (mode === "validate") {
         // Keep validate always returning 200 JSON, so the client code can proceed safely
