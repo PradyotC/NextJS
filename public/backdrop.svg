@@ -1,0 +1,88 @@
+<svg viewBox="0 0 500 500"
+     xmlns="http://www.w3.org/2000/svg"
+     preserveAspectRatio="xMidYMid slice">
+
+    <defs>
+        <!-- 1. Hazy Sunset Sky Gradient -->
+        <linearGradient id="hazySkyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#6D28D9" />
+            <stop offset="30%" stop-color="#BE185D" />
+            <stop offset="60%" stop-color="#F97316" />
+            <stop offset="85%" stop-color="#F59E0B" />
+            <stop offset="100%" stop-color="#FEF08A" />
+        </linearGradient>
+
+        <!-- 2. Soft Sun Gradient -->
+        <linearGradient id="softSunGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#FEF3C7" />
+            <stop offset="100%" stop-color="#FBBF24" />
+        </linearGradient>
+
+        <!-- 3. Reflective Ocean Gradient -->
+        <linearGradient id="sunsetOceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#F59E0B" />
+            <stop offset="15%" stop-color="#D946EF" />
+            <stop offset="40%" stop-color="#8B5CF6" />
+            <stop offset="100%" stop-color="#1E3A8A" />
+        </linearGradient>
+    </defs>
+
+    <!-- BACKGROUND -->
+
+    <!-- Sky -->
+    <rect width="500" height="500" fill="url(#hazySkyGradient)" />
+
+    <!-- Sun -->
+    <circle cx="250" cy="330" r="100"
+            fill="url(#softSunGradient)" opacity="0.9" />
+
+    <!-- DISTANT HAZE LAYERS -->
+
+    <!-- Furthest Mountains -->
+    <path d="M0 320 L150 240 L280 300 L380 220 L500 310 V500 H0 Z"
+          fill="#C4B5FD" opacity="0.3" />
+
+    <!-- Closer Mountains -->
+    <path d="M0 350 L100 290 L200 340 L380 270 L500 350 V500 H0 Z"
+          fill="#A78BFA" opacity="0.5" />
+
+    <!-- Ocean -->
+    <path d="M0 350 C150 355, 350 345, 500 350 V500 H0 Z"
+          fill="url(#sunsetOceanGradient)" />
+
+    <!-- Sun Reflection -->
+    <path
+        d="M230 350 L270 350 L260 360 L240 360 Z
+           M235 365 L265 365 L260 370 L240 370 Z
+           M240 375 L260 375 L255 380 L245 380 Z"
+        fill="#FEF3C7" opacity="0.6" />
+
+    <!-- Beach -->
+    <path d="M0 450 C150 445, 350 455, 500 440 V500 H0 Z"
+          fill="#FDBA74" />
+    <path d="M0 480 C100 475, 400 485, 500 470 V500 H0 Z"
+          fill="#FB923C" />
+
+    <!-- SILHOUETTES -->
+
+    <!-- Palm Trees -->
+    <g fill="#4C1D95" stroke="#4C1D95">
+        <!-- Left Tree -->
+        <path d="M60 500 Q70 350 40 220 L45 220 Q85 350 80 500 Z" />
+        <path
+            d="M42 220 Q10 240 0 270
+               M42 220 Q10 200 0 170
+               M42 220 Q50 170 20 140
+               M42 220 Q80 180 100 150
+               M42 220 Q100 240 120 270"
+            stroke-width="5" fill="none" />
+
+        <!-- Right Tree -->
+        <path d="M440 500 Q430 300 470 150 L475 150 Q435 300 460 500 Z" />
+        <path d="M472 150 Q410 170 360 200" stroke-width="8" fill="none" />
+        <path d="M472 150 Q410 120 370 80" stroke-width="8" fill="none" />
+        <path d="M472 150 Q470 80 450 40" stroke-width="8" fill="none" />
+        <path d="M472 150 Q530 100 560 80" stroke-width="8" fill="none" />
+        <path d="M472 150 Q530 200 560 230" stroke-width="8" fill="none" />
+    </g>
+</svg>

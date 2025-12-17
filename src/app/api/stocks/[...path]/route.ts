@@ -27,7 +27,7 @@ export async function getStocksData(reqUrl: string) {
     try {
         url = reqUrl.startsWith("http") ? new URL(reqUrl) : new URL(reqUrl, baseForRelative);
     } catch (err) {
-        console.warn(err)
+        console.log(err)
         url = new URL(reqUrl, "http://localhost");
     }
 
