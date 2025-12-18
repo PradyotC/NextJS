@@ -1,8 +1,9 @@
 import React from "react";
-import Image from "next/image";
 import { getTmdbData } from "@/app/api/tmdb/[...path]/route";
 import MovieModalTrigger from "@/components/MovieModalTrigger";
 import { faArrowTrendUp, faCalendar, faFire, faPlayCircle, faStar, IconDefinition } from "@fortawesome/free-solid-svg-icons";
+import ImageWithChecks from "@/components/ImageCheck";
+import { urlStringToSentenceCase } from "@/lib/nav-util";
 
 
 type TabData = {
@@ -48,13 +49,15 @@ function TmdbItem({ item }: { item: Movie }) {
 					<figure className="relative aspect-[4/3] w-full">
 						{item.poster_path ? (
 							<React.Suspense fallback={<div className="h-full w-full bg-base-300 flex items-center justify-center text-base-content/50">No Image</div>}>
-								<Image
+								<ImageWithChecks
+									wrapperClassName="w-full h-full"
 									src={`${TmdbImageBaseUrl}${item.poster_path}`}
 									alt={`${item.title} Poster`}
 									fill
 									loading="eager"
 									sizes="(max-width: 768px) 100vw, 33vw"
 									className="object-cover"
+									unoptimized
 								/>
 							</React.Suspense>
 						) : (
@@ -115,7 +118,7 @@ type Props = { params: Promise<{ category?: string }> };
 
 export default async function TmdbCategoryPage({ params }: Props) {
 	const paramsFetch = await params;
-	const cat = (paramsFetch.category || "Now-Playing").replace("-", " ");
+	const cat = urlStringToSentenceCase(paramsFetch.category || "now-playing");
 	const path = tabsInfo[cat]?.path ?? "movie/now_playing";
 	const cleanedPath = path.startsWith("/") ? path : `/${path}`;
 	const finalUrl = `/api/tmdb${cleanedPath}`;

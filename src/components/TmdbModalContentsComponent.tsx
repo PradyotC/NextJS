@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
-import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImdb } from "@fortawesome/free-brands-svg-icons";
 import React from "react";
+import ImageWithChecks from "./ImageCheck";
 
 type TmdbModalContentsProps = {
     id: number;
@@ -147,7 +147,8 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                     {data.backdrop_path ? (
                         // Height adapted for mobile (h-44) vs desktop (h-64)
                         <div className="relative h-44 md:h-64 w-full bg-base-200">
-                            <Image
+                            <ImageWithChecks
+                                wrapperClassName="w-full h-full"                                 
                                 src={`${TmdbBackdropBaseUrl}${data.backdrop_path}`}
                                 alt={`${data.title} Backdrop`}
                                 fill
@@ -189,12 +190,13 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                                 {!isImageLoaded ? (
                                     <div className="rounded-lg h-56 md:h-80 w-full bg-base-300 animate-pulse" />
                                 ) : data.poster_path ? (
-                                    <Image
+                                    <ImageWithChecks
+                                        wrapperClassName="w-full h-auto"                                         
                                         src={`${TmdbImageBaseUrl}${data.poster_path}`}
                                         alt={`${data.title} Poster`}
                                         width={300}
-                                        height={300}
-                                        className="rounded-lg border border-base-content/70 object-cover"
+                                        height={450}
+                                        className="rounded-lg border border-base-content/70 h-auto"
                                     />
                                 ) : (
                                     <div className="h-56 md:h-80 w-full bg-gray-700 flex items-center justify-center text-white">

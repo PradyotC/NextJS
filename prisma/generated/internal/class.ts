@@ -17,8 +17,8 @@ import type * as Prisma from "./prismaNamespace"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.1.0",
-  "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
+  "clientVersion": "7.2.0",
+  "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
   "inlineSchema": "generator client {\n  provider      = \"prisma-client\"\n  engineType    = \"client\"\n  output        = \"./generated\"\n  binaryTargets = [\"native\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Cache {\n  key       String   @id\n  data      Json\n  expireAt  DateTime\n  createdAt DateTime @default(now())\n\n  @@index([expireAt])\n}\n",
   "runtimeDataModel": {

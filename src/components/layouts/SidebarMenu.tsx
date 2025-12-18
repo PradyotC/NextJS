@@ -9,87 +9,11 @@ import {
 	faChevronUp,
 	faChevronRight,
 	faChevronLeft,
-	faTimes,
-	faHome,
-	faChartLine,
-	faNewspaper,
-	faFilm,
-	faCode,
-	faPlayCircle,
-	faFire,
-	faArrowTrendUp,
-	faStar,
-	faCalendar,
-	faLineChart,
-	faTerminal,
-	faGlobe,
-	faFlag,
-	faMicrochip,
-	faMasksTheater,
-	faBaseballBatBall,
-	faFlaskVial,
-	faHouseMedical,
-	faMusic,
+	faTimes
 } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
 import ThemeToggle from "../ThemeToggle";
-
-type NavItem = {
-	title: string;
-	icon?: any;
-	href?: string;
-	subItems?: NavItem[];
-};
-
-export const NAV_ITEMS: NavItem[] = [
-	{ title: "Home", icon: faHome, href: "/" },
-	{
-		title: "Daily",
-		icon: faChartLine,
-		href: "/daily",
-		subItems: [
-			{
-				title: "Tmdb",
-				icon: faFilm,
-				href: "/daily/tmdb",
-				subItems: [
-					{ title: "Now Playing", href: "/daily/tmdb/Now-Playing", icon: faPlayCircle },
-					{ title: "Popular", href: "/daily/tmdb/Popular", icon: faFire },
-					{ title: "Trending", href: "/daily/tmdb/Trending", icon: faArrowTrendUp },
-					{ title: "Top Rated", href: "/daily/tmdb/Top-Rated", icon: faStar },
-					{ title: "Upcoming", href: "/daily/tmdb/Upcoming", icon: faCalendar },
-				],
-			},
-			{ title: "Freesound", href: "/daily/freesound", icon: faMusic },
-			{ title: "Jamendo", href: "/daily/jamendo", icon: faMusic },
-			{
-				title: "News",
-				icon: faNewspaper,
-				href: "/daily/news",
-				subItems: [
-					{ title: "General", href: "/daily/news/general", icon: faNewspaper },
-					{ title: "World", href: "/daily/news/world", icon: faGlobe },
-					{ title: "Nation", href: "/daily/news/nation", icon: faFlag },
-					{ title: "Business", href: "/daily/news/business", icon: faChartLine },
-					{ title: "Technology", href: "/daily/news/technology", icon: faMicrochip },
-					{ title: "Entertainment", href: "/daily/news/entertainment", icon: faMasksTheater },
-					{ title: "Sports", href: "/daily/news/sports", icon: faBaseballBatBall },
-					{ title: "Science", href: "/daily/news/science", icon: faFlaskVial },
-					{ title: "Health", href: "/daily/news/health", icon: faHouseMedical },
-				],
-			},
-			{ title: "Stocks", href: "/daily/stocks", icon: faLineChart },
-		],
-	},
-	{
-		title: "Development",
-		icon: faCode,
-		href: "/development",
-		subItems: [
-			{ title: "Sandbox", icon: faTerminal, href: "/development/sandbox" },
-		],
-	},
-];
+import ImageWithChecks from "../ImageCheck";
+import { NavItem, NAV_ITEMS } from "@/lib/nav-util";
 
 export default function Sidebar() {
 	const pathname = usePathname();
@@ -144,7 +68,7 @@ export default function Sidebar() {
 								href="/"
 								className="btn btn-ghost normal-case text-xl text-base-content gap-2"
 							>
-								<Image src="/icon.svg" alt='Main Icon' width={26} height={26} />
+								<ImageWithChecks wrapperClassName="flex items-center justify-center w-full h-full m-0 p-0" src="/icon.svg" alt='Main Icon' width={26} height={26} />
 								<span className="font-semibold">Portfolio</span>
 							</Link>
 							<ThemeToggle />
