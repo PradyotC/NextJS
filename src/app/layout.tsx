@@ -8,10 +8,10 @@ import ThemeHtmlWrapper from "@/components/ThemeHtmlWrapper";
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
-import Image from 'next/image';
 import ThemeToggle from "@/components/ThemeToggle";
 // import HeaderComponent from "@/components/headerComponent";
 import Sidebar from "@/components/layouts/SidebarMenu";
+import ImageWithChecks from "@/components/ImageCheck";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -56,60 +56,6 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
 				suppressHydrationWarning // Add 'relative'
 			>
-				{/* <ThemeProvider>
-					<ThemeHtmlWrapper />
-					<AnimatedBackground />
-
-					<div className="relative z-10 min-h-screen">
-						<div
-							data-theme="dark"
-							className="navbar bg-[var(--header-bg)] text-base-content shadow-lg border-b border-base-200/50 sticky top-0 z-[60] transition-colors duration-300"
-						>
-
-							<div className="navbar-start">
-								<div className="dropdown lg:hidden">
-									<label tabIndex={0} aria-label="Open navigation menu" className="btn btn-ghost btn-circle">
-										<FontAwesomeIcon icon={faBars} className="h-5 w-5" />
-									</label>
-
-									<ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-200 text-base-content rounded-box z-[1] mt-3 w-52 p-2 shadow">
-										{navFilteredItems.map((item, index) => (
-											<li key={index}>
-												<HeaderComponent item={item} />
-											</li>
-										))}
-									</ul>
-								</div>
-
-								<Link
-									href="/"
-									className="btn btn-ghost normal-case text-xl text-base-content gap-2"
-								>
-									<Image src="/icon.svg" alt='Main Icon' width={26} height={26} />
-									<span className="font-semibold">TestNextJS</span>
-								</Link>
-							</div>
-
-							<div className="navbar-center hidden lg:flex">
-								<ul className="menu menu-horizontal space-x-0">
-									{navItems.map((item, index) => (
-										<li key={index} className="p-0 m-0">
-											<HeaderComponent item={item} />
-										</li>
-									))}
-								</ul>
-							</div>
-
-							<div className="navbar-end space-x-1">
-								<ThemeToggle />
-							</div>
-						</div>
-						<main role="main">
-							{children}
-						</main>
-					</div>
-				</ThemeProvider> */}
-
 				<ThemeProvider>
 					<ThemeHtmlWrapper />
 					<AnimatedBackground />
@@ -142,7 +88,7 @@ export default function RootLayout({
 								</label>
 								<div className="w-full flex justify-between items-center">
 									<Link href="/" className="btn btn-ghost normal-case text-xl text-base-content gap-2">
-										<Image src="/icon.svg" alt="Main Icon" width={26} height={26} />
+										<ImageWithChecks wrapperClassName="flex items-center justify-center w-full h-full m-0 p-0" src="/icon.svg" alt="Main Icon" width={26} height={26} />
 										<span className="font-semibold">Portfolio</span>
 									</Link>
 									<ThemeToggle />

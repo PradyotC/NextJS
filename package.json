@@ -10,8 +10,7 @@
     "prisma:dev": "npx prisma generate && npx prisma studio",
     "clean:deps": "rm -rf .next prisma/generated node_modules package-lock.json && npm install && prisma generate",
     "dev:chrome": "next dev & open -a 'Google Chrome' http://localhost:3000",
-    "dev:safari": "next dev & open -a Safari http://localhost:3000",
-    "analyze": "cross-env ANALYZE=true next build --webpack"
+    "dev:safari": "next dev & open -a Safari http://localhost:3000"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -41,13 +40,14 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "baseline-browser-mapping": "^2.9.4",
+    "dotenv": "^17.2.3",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "knip": "^5.75.1",
+    "postcss": "^8.5.6",
     "prisma": "^7.1.0",
-    "sass": "^1.94.0",
-    "scss": "^0.2.4",
+    "sass": "^1.97.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }

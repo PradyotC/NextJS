@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "src/app/**/page.{tsx,js,jsx}",
+    "src/app/**/layout.{tsx,js,jsx}",
+    "src/app/**/route.{ts,js}",
+    "src/app/**/error.{tsx,js,jsx}",
+    "src/app/**/loading.{tsx,js,jsx}",
+    "next.config.{js,ts,mjs}" 
+  ],
+  "project": ["src/**/*.{ts,tsx,js,jsx}"],
+  "ignore": ["**/*.d.ts"],
+  "ignoreBinaries": ["open"],
+  "ignoreDependencies": [
+    "daisyui",
+    "tailwindcss",
+    "@fortawesome/free-regular-svg-icons",
+    "@prisma/client",
+    "pg",
+    "zod"
+  ]
+}

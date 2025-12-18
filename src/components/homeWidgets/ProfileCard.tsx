@@ -1,15 +1,15 @@
-import Image from "next/image";
 import { PERSONAL_INFO } from "../personal-data";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import ImageWithChecks from "../ImageCheck";
 
 export default function ProfileCard() {
 	return (
 		<div className="card bg-base-200 shadow-2xl h-full border border-base-300 overflow-hidden relative">
 			{/* BACKDROP */}
 			<div className="absolute inset-0 z-0">
-				<Image
-					src="/backdrop.svg"
+				<ImageWithChecks
+wrapperClassName="w-full h-full" 					src="/backdrop.svg"
 					alt="Backdrop"
 					fill
 					className="object-cover"
@@ -54,8 +54,8 @@ export default function ProfileCard() {
     flex items-center justify-center
   "
 					>
-						<Image
-							src="/my.png"
+						<ImageWithChecks
+wrapperClassName="w-full h-full" 							src="/my.png"
 							alt="Profile"
 							width={160}
 							height={160}

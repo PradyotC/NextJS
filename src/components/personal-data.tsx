@@ -25,7 +25,7 @@ export type SkillItem = {
 	color?: string;
 };
 
-export type SkillCategory = {
+type SkillCategory = {
 	category: string;
 	items: SkillItem[];
 };
@@ -43,11 +43,6 @@ export type Project = {
 	video?: string;
 	// Add additional fields as necessary
 };
-
-// Categories can be extended with more categories as needed
-export const ProjectCategories = ['All', 'Web Development', 'Software Development', 'Others'] as const;
-
-export type ProjectCategory = typeof ProjectCategories[number];
 
 // 1. NextJS Logo (Black/White, modern)
 const NextJsLogo = () => (
