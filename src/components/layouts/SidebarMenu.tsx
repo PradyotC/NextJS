@@ -6,14 +6,14 @@ import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faChevronDown,
-	faChevronUp,
 	faChevronRight,
 	faChevronLeft,
 	faTimes
 } from "@fortawesome/free-solid-svg-icons";
 import ThemeToggle from "../ThemeToggle";
 import ImageWithChecks from "../ImageCheck";
-import { NavItem, NAV_ITEMS } from "@/lib/nav-util";
+import { NavItem } from "@/lib/nav-util";
+import { NAV_ITEMS } from "@/lib/nav-util";
 
 export default function Sidebar() {
 	const pathname = usePathname();
@@ -46,21 +46,12 @@ export default function Sidebar() {
 				className={`
                     fixed inset-y-0 left-0 z-50 
                     bg-base-200
-                    
-                    /* Key Fix: Always overflow-hidden so content doesn't bleed during transition */
                     overflow-hidden
-
-                    /* Mobile: Slide in/out logic */
                     w-64 -translate-x-full peer-checked:translate-x-0
-                    
-                    /* Desktop: Width transition logic */
                     lg:translate-x-0 lg:static 
                     ${isDesktopOpen ? "lg:w-64 border-r border-base-300" : "lg:w-0 border-none"}
                 `}
 			>
-				{/* Inner Container with fixed width. 
-                    This keeps the content layout stable while the parent container shrinks.
-                */}
 				<div className="w-64 h-full flex flex-col whitespace-nowrap">
 					<div className="flex items-center shrink-0 w-full h-16 px-3 border-b border-base-300">
 						<div className="w-full hidden lg:flex lg:justify-between items-center">
@@ -102,9 +93,14 @@ export default function Sidebar() {
 }
 
 function isPathActive(item: NavItem, pathname: string | null): boolean {
-	if (!pathname || !item.href) return false;
-	if (pathname === item.href) return true;
-	if (item.href !== "/" && pathname.startsWith(item.href + "/")) return true;
+	if (!pathname) return false;
+
+	// Safety check: item.href might be undefined now
+	if (item.href) {
+		if (pathname === item.href) return true;
+		if (item.href !== "/" && pathname.startsWith(item.href + "/")) return true;
+	}
+
 	if (item.subItems) {
 		return item.subItems.some((child) => isPathActive(child, pathname));
 	}
@@ -114,9 +110,18 @@ function isPathActive(item: NavItem, pathname: string | null): boolean {
 function SidebarItem({ item, pathname, depth }: { item: NavItem; pathname: string | null; depth: number }) {
 	const hasChildren = Boolean(item.subItems && item.subItems.length > 0);
 
-	const isExact = item.href === pathname;
-	const isPrefix = item.href !== "/" && pathname?.startsWith(item.href + "/");
-	const thisIsActive = Boolean(item.href && (isExact || (!hasChildren && isPrefix)));
+	// Active Logic:
+	// 1. Exact match (only if href exists)
+	const isExact = Boolean(item.href && item.href === pathname);
+
+	// 2. Prefix match (only if href exists)
+	const isPrefix = Boolean(item.href && item.href !== "/" && pathname?.startsWith(item.href + "/"));
+
+	// 3. This item is "Active" if it's the exact page, OR if it's a leaf node prefix
+	// (If it has children, we usually rely on childActive, unless it's also a valid page itself)
+	const thisIsActive = Boolean(isExact || (!hasChildren && isPrefix));
+
+	// 4. Child Active: One of the children is selected
 	const childActive = Boolean(isPathActive(item, pathname) && !thisIsActive);
 
 	const [isOpen, setIsOpen] = useState(childActive || thisIsActive);
@@ -163,8 +168,14 @@ function SidebarItem({ item, pathname, depth }: { item: NavItem; pathname: strin
 							<span className="truncate">{item.title}</span>
 						</Link>
 					) : (
-						<div className={`flex-1 flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-base-content/70 cursor-default`}>
-							{item.icon && <FontAwesomeIcon icon={item.icon} className="w-4 h-4 text-base-content/50" />}
+						// RENDER AS DIV (Not Clickable, just Label)
+						<div
+							className={`flex-1 flex items-center gap-3 px-3 py-2.5 text-sm font-medium cursor-pointer
+                                ${childActive ? childActiveTextColor : "text-base-content/70"}
+                            `}
+							onClick={() => setIsOpen(!isOpen)} // Make label toggle the menu too
+						>
+							{item.icon && <FontAwesomeIcon icon={item.icon} className={`w-4 h-4 ${childActive ? childActiveIconColor : "text-base-content/50"}`} />}
 							<span className="truncate">{item.title}</span>
 						</div>
 					)}
@@ -182,7 +193,7 @@ function SidebarItem({ item, pathname, depth }: { item: NavItem; pathname: strin
 						aria-label="Toggle submenu"
 					>
 						<FontAwesomeIcon
-							icon={isOpen ? faChevronUp : faChevronDown}
+							icon={isOpen ? faChevronDown : faChevronRight}
 							className="w-3 h-3"
 						/>
 					</button>
