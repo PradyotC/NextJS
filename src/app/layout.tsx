@@ -96,10 +96,8 @@ export default function RootLayout({
 							</header>
 
 							{/* Page Content - Independent Scroll */}
-							<main className="flex-1 overflow-y-auto py-6 px-3 lg:px-6 w-full">
-								<div className="mx-auto">
-									{children}
-								</div>
+							<main className="grow overflow-y-auto py-6 px-3 lg:px-6 w-full">
+								{children}
 							</main>
 						</div>
 					</div>

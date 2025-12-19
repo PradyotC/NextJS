@@ -1,138 +1,195 @@
 import {
-	faHome,
-	faChartLine,
-	faNewspaper,
-	faFilm,
-	faCode,
-	faPlayCircle,
-	faFire,
-	faArrowTrendUp,
-	faStar,
-	faCalendar,
-	faLineChart,
-	faTerminal,
-	faGlobe,
-	faFlag,
-	faMicrochip,
-	faMasksTheater,
-	faBaseballBatBall,
-	faFlaskVial,
-	faHouseMedical,
-	faMusic,
+    faHome,
+    faChartLine,
+    faNewspaper,
+    faFilm,
+    faCode,
+    faPlayCircle,
+    faFire,
+    faArrowTrendUp,
+    faStar,
+    faCalendar,
+    faLineChart,
+    faTerminal,
+    faGlobe,
+    faFlag,
+    faMicrochip,
+    faMasksTheater,
+    faBaseballBatBall,
+    faFlaskVial,
+    faHouseMedical,
+    faMusic,
 } from "@fortawesome/free-solid-svg-icons";
+import { SNIPPETS } from "./sandbox-data";
+import { faGolang, faPython } from "@fortawesome/free-brands-svg-icons";
 
 // --- Helpers ---
 
-/**
- * Converts "Now Playing" -> "now-playing"
- */
-function toSlug(str: string): string {
-	return str.toLowerCase().trim().replace(/\s+/g, "-");
+export function toSlug(str: string): string {
+    return str.toLowerCase().trim().replace(/\s+/g, "-");
 }
 
 export function urlStringToSentenceCase(str: string): string {
-	if (!str) return str;
-	const clean = str.replace(/-/g, " ");
-	return clean.charAt(0).toUpperCase() + clean.slice(1);
+    if (!str) return str;
+    const clean = str.replace(/-/g, " ");
+    return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
 // --- Types ---
 
-// 1. Input Type: href is optional
-type RawNavItem = {
-	title: string;
-	icon?: any;
-	href?: string; // Optional override (e.g., for "/")
-	subItems?: RawNavItem[];
+export type RawNavItem = {
+    title: string;
+    icon?: any;
+    href?: string;
+    noLink?: boolean;
+    subItems?: RawNavItem[];
 };
 
-// 2. Output Type: href is required (calculated)
 export type NavItem = {
-	title: string;
-	icon?: any;
-	href: string;
-	subItems?: NavItem[];
+    title: string;
+    icon?: any;
+    href?: string;
+    subItems?: NavItem[];
 };
 
-// --- Data Definition (Simplified) ---
+// --- Dynamic Data Generation ---
+
+// 1. Buckets for our categories
+const goSubItems: RawNavItem[] = [];
+const pythonSubItems: RawNavItem[] = [];
+const otherSubItems: RawNavItem[] = [];
+
+// 2. Iterate SNIPPETS once to populate buckets
+SNIPPETS.forEach((snippet) => {
+    const item: RawNavItem = {
+        title: snippet.navTitle,
+        icon: snippet.language === "go" 
+            ? faGolang 
+            : snippet.language === "python" 
+                ? faPython 
+                : faTerminal,
+    };
+
+    if (snippet.language === "go") {
+        goSubItems.push(item);
+    } else if (snippet.language === "python") {
+        pythonSubItems.push(item);
+    } else {
+        otherSubItems.push(item);
+    }
+});
+
+// 3. Construct the "Sandbox" folder structure
+const sandboxFolderItems: RawNavItem[] = [];
+
+if (goSubItems.length > 0) {
+    sandboxFolderItems.push({
+        title: "Go",
+        icon: faGolang,
+        noLink: true,
+        subItems: goSubItems,
+    });
+}
+if (pythonSubItems.length > 0) {
+    sandboxFolderItems.push({
+        title: "Python",
+        icon: faPython,
+        noLink: true,
+        subItems: pythonSubItems,
+    });
+}
+if (otherSubItems.length > 0) {
+    sandboxFolderItems.push({
+        title: "Other",
+        icon: faTerminal,
+        noLink: true,
+        subItems: otherSubItems,
+    });
+}
+
+// --- Main Navigation Tree ---
 
 const RAW_NAV_TREE: RawNavItem[] = [
-	{ title: "Home", icon: faHome, href: "/" }, // Explicit override for root
-	{
-		title: "Daily",
-		icon: faChartLine,
-		subItems: [
-			{
-				title: "Tmdb",
-				icon: faFilm,
-				subItems: [
-					{ title: "Now Playing", icon: faPlayCircle }, // href -> /daily/tmdb/now-playing
-					{ title: "Popular", icon: faFire },
-					{ title: "Trending", icon: faArrowTrendUp },
-					{ title: "Top Rated", icon: faStar },
-					{ title: "Upcoming", icon: faCalendar },
-				],
-			},
-			{ title: "Freesound", icon: faMusic },
-			{ title: "Jamendo", icon: faMusic },
-			{
-				title: "News",
-				icon: faNewspaper,
-				subItems: [
-					{ title: "General", icon: faNewspaper },
-					{ title: "World", icon: faGlobe },
-					{ title: "Nation", icon: faFlag },
-					{ title: "Business", icon: faChartLine },
-					{ title: "Technology", icon: faMicrochip },
-					{ title: "Entertainment", icon: faMasksTheater },
-					{ title: "Sports", icon: faBaseballBatBall },
-					{ title: "Science", icon: faFlaskVial },
-					{ title: "Health", icon: faHouseMedical },
-				],
-			},
-			{ title: "Stocks", icon: faLineChart },
-		],
-	},
-	{
-		title: "Development",
-		icon: faCode,
-		subItems: [
-			{ title: "Sandbox", icon: faTerminal },
-		],
-	},
+    { title: "Home", icon: faHome, href: "/" },
+    {
+        title: "Daily",
+        icon: faChartLine,
+        noLink: true,
+        subItems: [
+            {
+                title: "Tmdb",
+                icon: faFilm,
+                subItems: [
+                    { title: "Now Playing", icon: faPlayCircle },
+                    { title: "Popular", icon: faFire },
+                    { title: "Trending", icon: faArrowTrendUp },
+                    { title: "Top Rated", icon: faStar },
+                    { title: "Upcoming", icon: faCalendar },
+                ],
+            },
+            { title: "Freesound", icon: faMusic },
+            { title: "Jamendo", icon: faMusic },
+            {
+                title: "News",
+                icon: faNewspaper,
+                subItems: [
+                    { title: "General", icon: faNewspaper },
+                    { title: "World", icon: faGlobe },
+                    { title: "Nation", icon: faFlag },
+                    { title: "Business", icon: faChartLine },
+                    { title: "Technology", icon: faMicrochip },
+                    { title: "Entertainment", icon: faMasksTheater },
+                    { title: "Sports", icon: faBaseballBatBall },
+                    { title: "Science", icon: faFlaskVial },
+                    { title: "Health", icon: faHouseMedical },
+                ],
+            },
+            { title: "Stocks", icon: faLineChart },
+        ],
+    },
+    {
+        title: "Development",
+        icon: faCode,
+        noLink: true,
+        subItems: [
+            {
+                title: "Sandbox",
+                icon: faTerminal,
+                noLink: true,
+                subItems: sandboxFolderItems,
+            },
+        ],
+    },
 ];
 
 // --- Recursive Generator ---
 
-function generateNavLinks(items: RawNavItem[], parentPath: string = ""): NavItem[] {
-	return items.map((item) => {
-		// 1. Determine the segment (either explicit href or slugified title)
-		let currentPath: string;
+function generateNavLinks(
+    items: RawNavItem[],
+    parentPath: string = ""
+): NavItem[] {
+    return items.map((item) => {
+        let currentPath: string;
 
-		if (item.href && item.href.startsWith("/")) {
-			// If it's an absolute path (like "/"), ignore parent path
-			currentPath = item.href;
-		} else {
-			// Otherwise, append to parent path
-			const slug = item.href || toSlug(item.title);
-			// Ensure we don't end up with "//" if parent is root
-			const prefix = parentPath === "/" ? "" : parentPath;
-			currentPath = `${prefix}/${slug}`;
-		}
+        if (item.href && item.href.startsWith("/")) {
+            currentPath = item.href;
+        } else {
+            const slug = item.href || toSlug(item.title);
+            const prefix = parentPath === "/" ? "" : parentPath;
+            currentPath = `${prefix}/${slug}`;
+        }
 
-		// 2. Process children recursively
-		const processedSubItems = item.subItems
-			? generateNavLinks(item.subItems, currentPath)
-			: undefined;
+        const processedSubItems = item.subItems
+            ? generateNavLinks(item.subItems, currentPath)
+            : undefined;
 
-		return {
-			title: item.title,
-			icon: item.icon,
-			href: currentPath,
-			subItems: processedSubItems,
-		};
-	});
+        return {
+            title: item.title,
+            icon: item.icon,
+            href: item.noLink ? undefined : currentPath,
+            subItems: processedSubItems,
+        };
+    });
 }
 
-// Export the fully hydrated list
 export const NAV_ITEMS = generateNavLinks(RAW_NAV_TREE);
