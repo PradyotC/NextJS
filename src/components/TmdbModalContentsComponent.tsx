@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,59 +11,77 @@ type TmdbModalContentsProps = {
     closeModal: () => void;
 };
 
-const fetcher = (url: string) =>
-    fetch(url).then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-    });
+
+
+// Interface for the API response
+interface MovieDetails {
+    id: number;
+    title: string;
+    overview: string | null;
+    tagline: string | null;
+    status: string;
+    runtime: number | null;
+    imdbId: string | null;
+    homepage: string | null;
+    budget: bigint;
+    revenue: bigint;
+    posterPath: string | null;
+    backdropPath: string | null;
+    releaseDate: string | null;
+    originalLang: string | null;
+    originalTitle: string | null;
+    voteAverage: number;
+    genres: string[];
+}
+const fetcher = (url: string) => fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Failed to fetch data");
+    return res.json();
+});
 
 const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
     id,
     closeModal,
 }) => {
-    const TmdbImageBaseUrl = process.env.NEXT_PUBLIC_TMDBIMAGEBASEURL;
-    const TmdbBackdropBaseUrl = process.env.NEXT_PUBLIC_TMDBBACKDROPBASEURL;
-    const ImdbUrl = process.env.NEXT_PUBLIC_IMDBURL;
+    const ImdbUrl = process.env.NEXT_PUBLIC_IMDBURL || "https://www.imdb.com/title/";
 
-    const { data, error } = useSWR(`/api/tmdb/movie/${id}`, fetcher, {
-        refreshInterval: 15 * 60 * 1000,
-        revalidateOnFocus: true,
-        dedupingInterval: 60_000,
-    });
-
+    const { data, error, isLoading } = useSWR<MovieDetails>(
+        id ? `/api/tmdb/movie/${id}` : null, 
+        fetcher,
+        {
+            revalidateOnFocus: false, // Don't refetch when clicking back to tab
+            dedupingInterval: 60000, // Cache for 1 minute in SWR
+        }
+    );
     const [isImageLoaded, setIsImageLoaded] = useState(false);
 
-    useEffect(() => {
-        // Save current scroll position
-        const scrollY = window.scrollY;
 
-        // Lock scroll
+    // Scroll Lock
+    useEffect(() => {
+        const scrollY = window.scrollY;
         document.body.style.position = "fixed";
         document.body.style.top = `-${scrollY}px`;
         document.body.style.width = "100%";
 
         return () => {
-            // Restore scroll
             document.body.style.position = "";
             document.body.style.top = "";
             document.body.style.width = "";
-
             window.scrollTo(0, scrollY);
         };
     }, []);
 
-
+    // Preload Image
     useEffect(() => {
-        if (!data?.poster_path) return;
+        if (!data?.posterPath) return;
         let mounted = true;
         const img = new window.Image();
-        img.src = `${TmdbImageBaseUrl}${data.poster_path}`;
+        img.src = data.posterPath;
         img.onload = () => mounted && setIsImageLoaded(true);
         img.onerror = () => mounted && setIsImageLoaded(true);
         return () => { mounted = false; };
-    }, [TmdbImageBaseUrl, data?.poster_path]);
+    }, [data?.posterPath]);
 
-    // Handle Escape key
+    // Handle Escape Key
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
             if (e.key === "Escape") closeModal();
@@ -71,38 +90,15 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
         return () => window.removeEventListener("keydown", handleEsc);
     }, [closeModal]);
 
-    // --- Loading State ---
-    if (!data && !error) {
-        return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                {/* Use base-content to show loading spinner in correct theme color */}
-                <div className="p-3 rounded-lg bg-base-100 text-base-content text-center">
-                    <span className="loading text-base-content text-extrabold loading-spinner loading-xl"></span>
-                </div>
-            </div>
-        );
-    }
-
-    // --- Error State ---
-    if (error) {
-        return (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                <div className="text-center text-error bg-base-100 p-6 rounded-lg shadow-xl">
-                    Failed to load data.
-                    <button className="btn btn-sm btn-ghost ml-4" onClick={closeModal}>Close</button>
-                </div>
-            </div>
-        );
-    }
-
-    const formatRuntime = (mins?: number) => {
-        if (mins === undefined || mins === null) return "—";
+    // --- Helpers ---
+    const formatRuntime = (mins?: number | null) => {
+        if (!mins) return "—";
         const h = Math.floor(mins / 60);
         const m = mins % 60;
         return h > 0 ? `${h}h ${m}m` : `${m}m`;
     };
 
-    const formatDate = (iso?: string) => {
+    const formatDate = (iso?: string | null) => {
         if (!iso) return "—";
         try {
             return new Date(iso).toLocaleDateString(undefined, {
@@ -111,19 +107,38 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                 day: "numeric",
             });
         } catch {
-            return iso;
+            return "—";
         }
     };
 
-    const genreList = (arr?: any[]) =>
-        arr && arr.length ? arr.map((g) => g.name).join(", ") : "—";
+    const genreList = (arr?: string[]) => arr && arr.length ? arr.join(", ") : "—";
+
+    if (isLoading) {
+        return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div className="p-3 rounded-lg bg-base-100 text-base-content text-center">
+                    <span className="loading text-base-content loading-spinner loading-xl"></span>
+                </div>
+            </div>
+        );
+    }
+
+    // --- Error State ---
+    if (error || !data) {
+        return (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                <div className="text-center text-error bg-base-100 p-6 rounded-lg shadow-xl border border-error/20">
+                    <p className="font-bold">Failed to load data.</p>
+                    <button className="btn btn-sm btn-ghost mt-4" onClick={closeModal}>Close</button>
+                </div>
+            </div>
+        );
+    }
+
+    // Ensure data exists before rendering main content
+    if (!data) return null;
 
     return (
-        // OVERLAY WRAPPER
-        // 1. z-[100]: Ensures it covers the header (z-30).
-        // 2. items-end: Aligns modal to BOTTOM on mobile.
-        // 3. sm:items-center: Aligns modal to CENTER on desktop.
-        // 4. bg-black/60: Dark backdrop regardless of theme.
         <div
             className="fixed inset-0 z-[60] flex justify-center items-end sm:items-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-20"
             onClick={closeModal}
@@ -144,12 +159,12 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                 <div
                     data-theme="dark"
                     className="relative w-full shrink-0">
-                    {data.backdrop_path ? (
+                    {data.backdropPath ? (
                         // Height adapted for mobile (h-44) vs desktop (h-64)
                         <div className="relative h-44 md:h-64 w-full bg-base-200">
                             <ImageWithChecks
                                 wrapperClassName="w-full h-full"                                 
-                                src={`${TmdbBackdropBaseUrl}${data.backdrop_path}`}
+                                src={data.backdropPath}
                                 alt={`${data.title} Backdrop`}
                                 fill
                                 className="object-cover opacity-90" // Increased opacity for vibrancy
@@ -189,10 +204,10 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                             <div className="overflow-hidden shadow">
                                 {!isImageLoaded ? (
                                     <div className="rounded-lg h-56 md:h-80 w-full bg-base-300 animate-pulse" />
-                                ) : data.poster_path ? (
+                                ) : data.posterPath ? (
                                     <ImageWithChecks
-                                        wrapperClassName="w-full h-auto"                                         
-                                        src={`${TmdbImageBaseUrl}${data.poster_path}`}
+                                        wrapperClassName="w-full h-auto"
+                                        src={data.posterPath}
                                         alt={`${data.title} Poster`}
                                         width={300}
                                         height={450}
@@ -216,11 +231,11 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
 
                                         {/* LEFT GROUP: Date & Language */}
                                         <div className="flex gap-2">
-                                            <div className="badge badge-outline px-3 font-mono">
-                                                {formatDate(data.release_date)}
-                                            </div>
+                                            {data.releaseDate && <div className="badge badge-outline px-3 font-mono">
+                                                {formatDate(data.releaseDate)}
+                                            </div>}
                                             <div className="badge badge-outline px-3 uppercase">
-                                                {data.original_language ?? "EN"}
+                                                {data.originalLang ?? "EN"}
                                             </div>
                                         </div>
 
@@ -231,22 +246,30 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                                         </div>
                                     </div>
                                 </div>
-                                <p className="mt-2 mb-4 text-sm">{data.overview}</p>
+                                <p className="mt-2 mb-4 text-sm">{data.overview || "No synopsis available."}</p>
                             </div>
 
                             <div className="flex flex-col gap-4 text-sm mt-2 p-3 bg-base-200 rounded-lg">
                                 <div>
-                                    <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Genre</p>
+                                    <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Genres</p>
                                     <p className="font-medium">{genreList(data.genres)}</p>
                                 </div>
-                                <div className="grid grid-cols-2">
+                                <div className="grid grid-cols-2 space-y-3">
                                     <div>
                                         <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Status</p>
                                         <p className="font-medium">{data.status}</p>
                                     </div>
                                     <div>
                                         <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Original Title</p>
-                                        <p className="truncate font-medium" title={data.original_title}>{data.original_title}</p>
+                                        <p className="truncate font-medium">{data.originalTitle??data.title}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Budget</p>
+                                        <p className="font-medium">{data.budget.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs uppercase opacity-60 font-semibold tracking-wide">Revenue</p>
+                                        <p className="truncate font-medium">{data.revenue.toLocaleString("en-US", { style: "currency", currency: "USD" })}</p>
                                     </div>
                                 </div>
                             </div>
@@ -259,18 +282,18 @@ const TmdbModalContents: React.FC<TmdbModalContentsProps> = ({
                                         rel="noopener noreferrer"
                                         className="btn btn-primary btn-sm md:btn-md"
                                     >
-                                        Watch
+                                        Watch Now
                                     </a>
                                 )}
-                                {data.imdb_id && (
+                                {data.imdbId && (
                                     <a
-                                        href={`${ImdbUrl}${data.imdb_id}`}
+                                        href={`${ImdbUrl}${data.imdbId}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="btn btn-outline btn-sm md:btn-md gap-2"
                                     >
-                                        <FontAwesomeIcon icon={faImdb} className="text-lg" />
-                                        IMDB
+                                        <FontAwesomeIcon icon={faImdb} className="text-xl" />
+                                        IMDb
                                     </a>
                                 )}
                             </div>

@@ -36,7 +36,10 @@ export function deriveImageParams(props: Partial<ImageProps>) {
 }
 
 export function getProxyUrl(src: string, options: { width?: number; height?: number; quality?: number } = {}) {
-    if (!src || src.startsWith('/') || src.startsWith('blob:')) return src;
+    // FIX: If src is missing, local, blob, OR ALREADY PROXIED, return as is.
+    if (!src || src.startsWith('/') || src.startsWith('blob:') || src.includes('wsrv.nl')) {
+        return src;
+    }
 
     const { width, height, quality } = options;
     const params = new URLSearchParams();
@@ -46,8 +49,6 @@ export function getProxyUrl(src: string, options: { width?: number; height?: num
     if (width && width > 0) params.append('w', width.toString());
     if (height && height > 0) params.append('h', height.toString());
 
-    // Important: If both width and height are present, tell wsrv to 'cover' 
-    // (crop) instead of stretch
     if (width && height) params.append('fit', 'cover');
 
     if (quality) params.append('q', quality.toString());

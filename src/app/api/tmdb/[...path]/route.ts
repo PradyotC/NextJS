@@ -1,122 +1,69 @@
-// app/api/tmdb/[...path]/route.ts
 import { NextResponse } from "next/server";
-import { getCached, setCached } from "@/lib/server/prismaCache";
-
-const TMDB_BASE = process.env.TMDB_BASE_URL;
-const TMDB_KEY = process.env.TMDB_API_ACCESS_TOKEN;
+import { getMoviesByCategory, getMovieDetail } from "@/lib/server/tmdb-service";
 
 export const runtime = "nodejs";
 
-// TTL preset constants (seconds)
-const ONE_HOUR = 3600;
-const TEN_MINUTES = 600;
-const ONE_YEAR = 31536000;
+export async function GET(req: Request, { params }: { params: Promise<{ path: string[] }> }) {
+    try {
+        const { path } = await params; 
+        // path is an array: e.g., ["movie", "popular"] or ["movie", "550"] or ["trending"]
 
-// Map of regex (string) => ttl seconds
-// Order matters: first match wins.
-const endpointTtlRules: { pattern: RegExp; ttl: number; description?: string }[] = [
-	// Single-entity details -> long cache (1 year)
-	{ pattern: /^\/?movie\/\d+$/i, ttl: ONE_YEAR, description: "movie detail (long)" },
-	{ pattern: /^\/?tv\/\d+$/i, ttl: ONE_YEAR, description: "tv detail (long)" },
-	{ pattern: /^\/?person\/\d+$/i, ttl: ONE_YEAR, description: "person detail (long)" },
+        // CASE 1: Trending
+        if (path[0] === "trending") {
+            const data = await getMoviesByCategory("trending");
+            return NextResponse.json(data);
+        }
 
-	// Lists / popular / top rated / trending -> short (1 hour)
-	{ pattern: /^\/?movie\/(popular|top_rated|now_playing|upcoming)$/i, ttl: ONE_HOUR, description: "movie lists" },
-	{ pattern: /^\/?trending\//i, ttl: ONE_HOUR, description: "trending lists" },
+        // CASE 2: Movie Routes
+        if (path[0] === "movie" && path[1]) {
+            const segment = path[1];
 
-	// Search & discover endpoints -> shorter (10 minutes)
-	{ pattern: /^\/?search\//i, ttl: TEN_MINUTES, description: "search" },
-	{ pattern: /^\/?discover\//i, ttl: TEN_MINUTES, description: "discover" },
+            // Check if segment is a number (Movie ID) or a string (Category)
+            const isId = !isNaN(Number(segment));
 
-	// Fallback
-	{ pattern: /^.*$/, ttl: ONE_HOUR, description: "fallback" },
-];
+            if (isId) {
+                // --- FETCH SINGLE MOVIE DETAIL ---
+                const movieId = parseInt(segment);
+                const movie = await getMovieDetail(movieId);
 
-function getTtlForPath(path: string): number {
-	// Normalize -> remove repeated leading slashes and trailing slash optionally (we want consistent matching)
-	const normalized = path.replace(/^\/+/, "").replace(/\/+$/, ""); // e.g. "movie/123" or "trending/movie/week?..." (we will strip search later)
-	// Test each rule against the normalized path
-	for (const rule of endpointTtlRules) {
-		if (rule.pattern.test("/" + normalized)) {
-			return rule.ttl;
-		}
-	}
-	// Default fallback
-	return ONE_HOUR;
-}
+                if (!movie) {
+                    return NextResponse.json({ error: "Movie not found" }, { status: 404 });
+                }
 
+                // FILTER: Only return necessary fields to Client to reduce payload
+                const filteredData = {
+                    id: movie.id,
+                    title: movie.title,
+                    overview: movie.overview,
+                    tagline: movie.tagline,
+                    status: movie.status,
+                    runtime: movie.runtime,
+                    imdbId: movie.imdbId,
+                    homepage: movie.homepage,
+                    posterPath: movie.posterPath,
+                    backdropPath: movie.backdropPath,
+                    releaseDate: movie.releaseDate,
+                    originalLang: movie.originalLang,
+                    originalTitle: movie.originalTitle,
+                    budget: movie.budget,
+                    revenue: movie.revenue,
+                    voteAverage: movie.voteAverage,
+                    genres: movie.genres, // Array of strings
+                };
 
-// Exported function: returns plain parsed data (object)
-export async function getTmdbData(reqUrl: string) {
-	const baseForRelative =
-		process.env.NEXT_PUBLIC_SITE_URL ||
-		process.env.NEXTAUTH_URL ||
-		process.env.NEXT_PUBLIC_VERCEL_URL ||
-		"http://localhost";
+                return NextResponse.json(filteredData);
+            } 
+            else {
+                // --- FETCH MOVIE LIST (popular, upcoming, etc) ---
+                const data = await getMoviesByCategory(segment);
+                return NextResponse.json(data);
+            }
+        }
 
-	let url: URL;
-	try {
-		url = reqUrl.startsWith("http") ? new URL(reqUrl) : new URL(reqUrl, baseForRelative);
-	} catch (err) {
-		console.log(err)
-		url = new URL(reqUrl, "http://localhost");
-	}
-	const prefix = "/api/tmdb";
-	let finalPath = url.pathname.startsWith(prefix)
-		? url.pathname.slice(prefix.length)
-		: url.pathname;
+        return NextResponse.json({ error: "Endpoint not supported" }, { status: 404 });
 
-	if (!finalPath.startsWith("/")) finalPath = "/" + finalPath;
-
-	// Keep the search string for the actual TMDB request & cache key
-	const search = url.search ?? "";
-
-	// For regex matching we only care about the path portion (no leading / normalization)
-	const pathForMatching = finalPath; // e.g. "/movie/123" or "/movie/popular"
-
-	// Unique cache key: path + search (so a query changes the key)
-	const urlId = `${finalPath}${search}`;
-	const cacheKey = `tmdb:${urlId}`;
-
-	// Try DB cache first
-	const cached = await getCached(cacheKey);
-	if (cached) {
-		// You can optionally log that cache hit occurred and when that cached record will expire,
-		// but do not reveal TTL to client in response body.
-		// (example logging omitted here)
-		return cached;
-	}
-
-	// Determine TTL based on the TMDB path (server-side only)
-	const chosenTtlSeconds = getTtlForPath(pathForMatching);
-
-	// Build the TMDB API endpoint
-	const endpoint = `${TMDB_BASE}${finalPath}${search}`;
-
-	// Make the native FETCH request
-	const response = await fetch(endpoint, {
-		headers: {
-			Accept: "application/json",
-			Authorization: `Bearer ${TMDB_KEY}`,
-		},
-		cache: "no-store", // ensure server fetch isn't itself cached by Next/fetch
-	});
-
-	if (!response.ok) {
-		throw new Error(`TMDB responded with status ${response.status}`);
-	}
-
-	const data = await response.json();
-	await setCached(cacheKey, data, chosenTtlSeconds);
-	return data
-}
-
-export async function GET(req: Request) {
-	try {
-		const data = await getTmdbData(req.url);
-		return NextResponse.json(data);
-	} catch (error: any) {
-		console.error("API route error:", error?.message ?? error);
-		return NextResponse.json({ error: "stocks fetch failed" }, { status: 500 });
-	}
+    } catch (error: any) {
+        console.error("TMDB Route Error:", error);
+        return NextResponse.json({ error: "Fetch failed" }, { status: 500 });
+    }
 }
