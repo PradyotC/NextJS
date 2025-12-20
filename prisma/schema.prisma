@@ -1,14 +1,19 @@
+// src/prisma/schema.prisma
+
 generator client {
-  provider  = "prisma-client"
-  engineType = "client"
-  output    = "./generated"
-  binaryTargets = ["native"]
+  provider      = "prisma-client"
+  engineType    = "client"
+  output        = "./generated"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// --------------------------------------------------------
+// 1. GENERIC CACHE (Fallback)
+// --------------------------------------------------------
 model Cache {
   key       String   @id
   data      Json
@@ -16,4 +21,130 @@ model Cache {
   createdAt DateTime @default(now())
 
   @@index([expireAt])
+}
+
+// --------------------------------------------------------
+// 2. MOVIES (TMDB)
+// --------------------------------------------------------
+model TmdbMovieList {
+  category    String   @id // e.g. "popular", "now_playing"
+  
+  movieIds    Int[]    // Order matters! [550, 123, 999...]
+  
+  // For lists like "Now Playing" that have date ranges
+  minDate     String?  // e.g. "2025-11-12"
+  maxDate     String?  // e.g. "2025-12-24"
+  
+  cachedAt    DateTime @default(now())
+  expireAt    DateTime // Short TTL (e.g. 1 day)
+}
+
+// --- UPDATED: Movie Details ---
+model TmdbMovie {
+  id           Int      @id
+  title        String
+  overview     String?  @db.Text
+  
+  // Media
+  posterPath   String?
+  backdropPath String?
+  
+  // Metadata
+  mediaType    String   @default("movie")
+  releaseDate  DateTime?
+  originalLang String?
+  originalTitle String?
+  
+  // Rich Details (From Detail API)
+  tagline      String?
+  runtime      Int?
+  status       String?
+  imdbId       String?
+  homepage     String?
+  budget       BigInt?   @default(0) // New
+  revenue      BigInt?   @default(0) // New
+  
+  // Ratings
+  voteAverage  Float    @default(0)
+  voteCount    Int      @default(0)
+  popularity   Float    @default(0)
+  
+  genres       String[] 
+
+  cachedAt     DateTime @default(now())
+  expireAt     DateTime // Long TTL (e.g. 1 Year)
+
+  @@index([expireAt])
+}
+
+// --------------------------------------------------------
+// 3. NEWS ARTICLES
+// --------------------------------------------------------
+model NewsArticle {
+  url         String   @id 
+  title       String
+  description String?  @db.Text
+  content     String?  @db.Text
+  
+  sourceId    String?
+  sourceName  String?
+  author      String?
+  imageUrl    String?
+  
+  publishedAt DateTime
+  category    String
+  
+  cachedAt    DateTime @default(now())
+  expireAt    DateTime
+
+  @@index([category, publishedAt(sort: Desc)])
+  @@index([expireAt])
+}
+
+// --------------------------------------------------------
+// 4. MUSIC TRACKS (Freesound / Jamendo)
+// --------------------------------------------------------
+model MusicTrack {
+  uniqueId    String   @id 
+  externalId  String
+  provider    String   // "jamendo" | "freesound"
+  
+  title       String
+  artist      String?
+  album       String?
+  
+  streamUrl   String
+  coverUrl    String?
+  waveformUrl String?
+  
+  duration    Float?
+  tags        String[]
+  license     String?
+  
+  rating      Float?
+  downloads   Int      @default(0)
+  
+  cachedAt    DateTime @default(now())
+  expireAt    DateTime
+
+  @@index([provider, tags])
+  @@index([expireAt])
+}
+
+// --------------------------------------------------------
+// 5. CODE SNIPPETS (Portfolio)
+// --------------------------------------------------------
+model CodeSnippet {
+  slug        String   @id
+  title       String
+  language    String
+  
+  description String   @db.Text
+  code        String   @db.Text
+  
+  order       Int      @default(0)
+  tags        String[]
+  
+  cachedAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
