@@ -12,10 +12,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ThemeToggle from "../ThemeToggle";
 import ImageWithChecks from "../ImageCheck";
-import { NavItem } from "@/lib/nav-util";
-import { NAV_ITEMS } from "@/lib/nav-util";
+import { type NavItem } from "@/lib/server/nav-util";
 
-export default function Sidebar() {
+export default function Sidebar({ menuItems }: { menuItems: NavItem[] }) {
 	const pathname = usePathname();
 	const [isDesktopOpen, setIsDesktopOpen] = useState(true);
 
@@ -77,7 +76,7 @@ export default function Sidebar() {
 					</div>
 
 					<nav className="flex-1 p-4 space-y-1 overflow-y-auto no-scrollbar">
-						{NAV_ITEMS.map((item, idx) => (
+						{menuItems.map((item, idx) => (
 							<SidebarItem
 								key={item.href ?? item.title + idx}
 								item={item}

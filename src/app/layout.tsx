@@ -9,9 +9,9 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import ThemeToggle from "@/components/ThemeToggle";
-// import HeaderComponent from "@/components/headerComponent";
 import Sidebar from "@/components/layouts/SidebarMenu";
 import ImageWithChecks from "@/components/ImageCheck";
+import { getSidebarData } from "@/lib/server/nav-data";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -34,22 +34,12 @@ export const metadata: Metadata = {
 	}
 };
 
-// const navItems = [
-// 	{ name: "Home", path: "/", allowed: true },
-// 	{ name: "TMDB", path: "/tmdb", allowed: true },
-// 	{ name: "Jamendo", path: "/jamendo", allowed: true },
-// 	{ name: "Freesound", path: "/freesound", allowed: true },
-// 	{ name: "News", path: "/news", allowed: true },
-// 	{ name: "Stocks", path: "/stocks", allowed: true },
-// ];
-
-// const navFilteredItems = navItems.filter((item) => item.allowed);
-
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const navItems = await getSidebarData();
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
@@ -71,7 +61,7 @@ export default function RootLayout({
 						/>
 
 						{/* Sidebar */}
-						<Sidebar />
+						<Sidebar menuItems={navItems} />
 
 						{/* Main Content Area */}
 						<div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">

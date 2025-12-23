@@ -1,37 +1,21 @@
 import { notFound } from "next/navigation";
-import { SNIPPETS } from "@/lib/sandbox-data";
+import { prisma } from "@/lib/server/prisma";
 import CodePlayground from "@/components/Sandbox/CodePlayground";
-import { toSlug } from "@/lib/nav-util";
-
-type Props = {
-  params: Promise<{ slug: string[] }>; // <--- Change: slug is now an Array
-};
-
-export async function generateStaticParams() {
-  return SNIPPETS.map((snippet) => {
-    // We map the snippet to its expected folder so Next.js knows valid paths
-    let folder = "others";
-    if (snippet.language === "go") folder = "go";
-    if (snippet.language === "python") folder = "python";
-
-    return {
-      slug: [folder, toSlug(snippet.navTitle)], // Generates /go/go-worker-pool
-    };
-  });
-}
+type Props = { params: Promise<{ slug: string[] }> };
 
 export default async function SandboxPage({ params }: Props) {
-  const { slug } = await params;
-  
-  // The slug is now an array: ['go', 'go-worker-pool']
-  // We want the last part ('go-worker-pool') to find the snippet
-  const activeSlug = slug[slug.length - 1]; 
+	const { slug } = await params;
 
-  const snippet = SNIPPETS.find((s) => toSlug(s.navTitle) === activeSlug);
+	const dbSlug = slug[slug.length - 1];
 
-  if (!snippet) {
-    notFound();
-  }
+	// Fetch Full Data (Code + Description) ONLY here
+	const snippet = await prisma.codeSnippet.findUnique({
+		where: { slug: dbSlug }
+	});
 
-  return <CodePlayground snippet={snippet} />;
+	if (!snippet) {
+		notFound();
+	}
+
+	return <CodePlayground snippet={snippet} />;
 }
