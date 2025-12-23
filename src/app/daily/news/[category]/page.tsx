@@ -1,7 +1,7 @@
 // src/app/news/[category]/page.tsx  (SERVER)
 import React from "react";
 import ImageWithChecks from "@/components/ImageCheck"; // thin client wrapper shown below
-import { getNewsData } from "@/app/api/news/[...path]/route";
+import { getNewsByCategory } from "@/lib/server/news-service";
 
 export const runtime = "nodejs";
 
@@ -11,26 +11,27 @@ export default async function NewsCategoryPage({ params }: Props) {
 	const paramsFetch = await params;
 	const cat = paramsFetch.category ?? "general";
 
-	const endpoint = `/api/news/top-headlines?category=${encodeURIComponent(cat)}&lang=en`;
+	let articles: any[] = [];
 
-	let data = { articles: [] as any[] };
 	try {
-		// getNewsData returns parsed JSON (or throws) — not a Response
-		const json = await getNewsData(endpoint);
-		// Defensive: ensure shape we expect
-		if (json && Array.isArray(json.articles)) {
-			data = json;
-		} else {
-			console.warn("Unexpected news payload shape", json);
-		}
+		const data = await getNewsByCategory(cat);
+		articles = data.articles;
 	} catch (err) {
 		console.error("Server fetch error:", err);
 		return <div className="m-5 p-3">Unable to load news data right now.</div>;
 	}
+	if (!articles.length) {
+		return (
+			<div className="p-10 text-center text-base-content/70">
+				<h2 className="text-xl font-bold">No news found</h2>
+				<p>{`We couldn't fetch fresh news or find cached data for ${cat}.`}</p>
+			</div>
+		);
+	}
 
 	return (
 		<ul className="space-y-6">
-			{data.articles.map((r: any) => (
+			{articles.map((r: any) => (
 				<li
 					key={r.id ?? r.url}
 					className="
@@ -60,14 +61,14 @@ export default async function NewsCategoryPage({ params }: Props) {
 								fallback={<div className="w-full h-full bg-base-400" />}
 							>
 								<ImageWithChecks
-									src={r.image ?? ""}
+									src={r.imageUrl ?? ""}
 									alt={r.title ?? "news image"}
 									loading="eager"
 									width={800}
 									height={450}
 									className="w-full h-full object-cover"
 									wrapperClassName="w-full h-full"
-								/>
+									forceUnoptimized={true}								/>
 							</React.Suspense>
 						</div>
 

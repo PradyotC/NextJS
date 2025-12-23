@@ -80,24 +80,33 @@ model TmdbMovie {
 // --------------------------------------------------------
 // 3. NEWS ARTICLES
 // --------------------------------------------------------
+model NewsArticleList {
+  category    String   @id // feed key, e.g. "general", "technology"
+  articleIds  String[] // ordered article IDs
+
+  cachedAt    DateTime @default(now())
+  expireAt    DateTime
+}
+
 model NewsArticle {
-  url         String   @id 
+  id          String   @id
+  url         String   @unique
+
   title       String
   description String?  @db.Text
   content     String?  @db.Text
-  
-  sourceId    String?
-  sourceName  String?
+
+  source      Json
   author      String?
   imageUrl    String?
-  
+
   publishedAt DateTime
-  category    String
-  
+  categories  String[] // MULTI-CATEGORY SUPPORT
+
   cachedAt    DateTime @default(now())
   expireAt    DateTime
 
-  @@index([category, publishedAt(sort: Desc)])
+  @@index([publishedAt(sort: Desc)])
   @@index([expireAt])
 }
 
@@ -135,16 +144,32 @@ model MusicTrack {
 // 5. CODE SNIPPETS (Portfolio)
 // --------------------------------------------------------
 model CodeSnippet {
-  slug        String   @id
-  title       String
-  language    String
+  // ID: constructed as "{language}-{slugified-title}" e.g., "go-worker-pool"
+  slug        String   @id 
+  
+  navTitle    String   // Short name for Sidebar (e.g. "Worker Pool")
+  title       String   // Full Title from README (e.g. "Go Concurrency Patterns")
+  language    String   // "go" | "python"
   
   description String   @db.Text
   code        String   @db.Text
   
   order       Int      @default(0)
-  tags        String[]
+  
+  // Optimization: Track which commit this version came from
+  commitSha   String?  
   
   cachedAt    DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([language]) // Fast filtering for sidebar buckets
+}
+
+// --------------------------------------------------------
+// 6. SYSTEM STATE (For Sync Optimization)
+// --------------------------------------------------------
+model SystemState {
+  key         String   @id // e.g., "sandbox_repo_sha"
+  value       String   // e.g., "a1b2c3d4..."
+  lastSyncAt  DateTime @updatedAt
 }

@@ -4,7 +4,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import {
-  type Container,
   type ISourceOptions,
   MoveDirection,
   OutMode,
@@ -24,8 +23,7 @@ const AnimatedBackground = () => {
     });
   }, []);
 
-  const particlesLoaded = async (container?: Container): Promise<void> => {
-    // console.log(container);
+  const particlesLoaded = async (): Promise<void> => {
   };
 
   // 3. Define dynamic colors based on the theme
