@@ -50,9 +50,8 @@ function normalizeText(text: string): string {
 
 function articleHashKey(item: any): string {
     const title = normalizeText(item.title || "");
-    const desc = normalizeText(item.description || "").slice(0, 20);
-    const day = item.publishedAt ? new Date(item.publishedAt).toISOString().slice(0, 10) : "";
-    return `${title}|${desc}|${day}`;
+    const content = normalizeText(item.content || "").slice(0, 20);
+    return `${title}|${content}`;
 }
 
 /* ================= TYPES ================= */
@@ -141,9 +140,37 @@ export async function getNewsByCategory(category: string): Promise<NewsResult> {
 
                 await Promise.all(
                     batch.map(async (item) => {
+                        // 1. Generate the standard Hash ID
                         const key = articleHashKey(item);
-                        const id = fnv1aHash(key);
-                        articleSet.add(id);
+                        const generatedId = fnv1aHash(key);
+
+                        // 2. Prepare Match Conditions (Robust Duplicate Check)
+                        const contentSnippet = item.content ? item.content.slice(0, 40) : "";
+                        
+                        const orConditions: any[] = [
+                            { id: generatedId }, // Match by Hash
+                            { url: item.url }    // Match by URL (Unique)
+                        ];
+
+                        // Match by Title (if present)
+                        if (item.title) {
+                            orConditions.push({ title: item.title });
+                        }
+
+                        // Match by Content Start (if substantial)
+                        if (contentSnippet.length >= 20) {
+                            orConditions.push({ content: { startsWith: contentSnippet } });
+                        }
+
+                        // 3. Check DB for ANY match
+                        const existing = await prisma.newsArticle.findFirst({
+                            where: { OR: orConditions }
+                        });
+
+                        // 4. Decide which ID to use
+                        // If we found an existing record (even with a different ID), we use THAT ID.
+                        const finalId = existing ? existing.id : generatedId;
+                        articleSet.add(finalId);
 
                         // Prepare data fields
                         const publishedAt = item.publishedAt ? new Date(item.publishedAt) : now;
@@ -151,42 +178,34 @@ export async function getNewsByCategory(category: string): Promise<NewsResult> {
                         const author = item.author ?? null;
                         const imageUrl = proxyImage(item.image ?? item.imageUrl ?? null);
                         
-                        // Helper to perform update (merging categories)
-                        const performUpdate = async (existingData: any) => {
+                        // Helper to perform update
+                        const performUpdate = async (idToUpdate: string, existingData: any) => {
                             const existingCategories = existingData.categories ?? [];
                             const merged = Array.from(new Set([...existingCategories, category]));
 
                             await prisma.newsArticle.update({
-                                where: { id },
+                                where: { id: idToUpdate },
                                 data: {
-                                    url: item.url || existingData.url,
-                                    title: item.title || existingData.title,
-                                    description: item.description ?? existingData.description,
-                                    content: item.content ?? existingData.content,
-                                    source: cleanedSource,
-                                    author,
-                                    imageUrl,
-                                    publishedAt,
+                                    // Update metadata
                                     categories: merged,
                                     cachedAt: now,
                                     expireAt: new Date(now.getTime() + ARTICLE_TTL),
+                                    // Optionally update mutable fields if they are better/newer, 
+                                    // but we definitely preserve the ID.
+                                    url: existingData.url, // Keep original URL to avoid unique constraint errors
                                 },
                             });
                         };
 
-                        // 1. Optimistic Check
-                        const existing = await prisma.newsArticle.findUnique({
-                            where: { id },
-                        });
-
                         if (existing) {
-                            await performUpdate(existing);
+                            // UPDATE existing record
+                            await performUpdate(finalId, existing);
                         } else {
-                            // 2. Attempt Create
+                            // CREATE new record
                             try {
                                 await prisma.newsArticle.create({
                                     data: {
-                                        id,
+                                        id: finalId,
                                         url: item.url,
                                         title: item.title || "",
                                         description: item.description || "",
@@ -201,16 +220,15 @@ export async function getNewsByCategory(category: string): Promise<NewsResult> {
                                     },
                                 });
                             } catch (err: any) {
-                                // 3. Handle Race Condition (Unique Constraint Failed)
+                                // Handle Race Condition (e.g. created by another request in the split second between findFirst and create)
                                 if (err.code === 'P2002') {
-                                    // It was created by another request milliseconds ago. 
-                                    // Fetch it and perform the update/merge logic instead.
-                                    const fresh = await prisma.newsArticle.findUnique({ where: { id } });
+                                    const fresh = await prisma.newsArticle.findFirst({ 
+                                        where: { OR: orConditions } 
+                                    });
                                     if (fresh) {
-                                        await performUpdate(fresh);
+                                        await performUpdate(fresh.id, fresh);
                                     }
                                 } else {
-                                    // Real error, rethrow
                                     throw err;
                                 }
                             }
