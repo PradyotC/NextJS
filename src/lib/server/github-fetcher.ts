@@ -15,7 +15,7 @@ const HEADERS = {
 export type Snippet = {
   navTitle: string;
   title: string;
-  language: "go" | "python";
+  language: string;
   description: string;
   code: string;
 };
