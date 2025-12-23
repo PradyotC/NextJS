@@ -1,6 +1,6 @@
 // src/lib/server/github-fetcher.ts
 
-const BASE_URL = process.env.GITHUB_REPO_BASEURL; // https://api.github.com/repos/PradyotC/SandboxCodes
+const BASE_URL = process.env.GITHUB_REPO_BASEURL;
 const TOKEN = process.env.GITHUB_ACCESS_TOKEN;
 
 if (!BASE_URL) throw new Error("Missing GITHUB_REPO_BASEURL in .env.local");
