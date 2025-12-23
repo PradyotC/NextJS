@@ -3,11 +3,9 @@ import { prisma } from "./prisma";
 import { faGolang, faPython } from "@fortawesome/free-brands-svg-icons";
 import { faTerminal } from "@fortawesome/free-solid-svg-icons";
 import { RawNavItem } from "./nav-util";
-import { syncSandboxRepo } from "./github-sync";
 
 export async function getSandboxNavItems() {
     // 1. Fetch only necessary fields
-    await syncSandboxRepo();
     const rawItems = await prisma.codeSnippet.findMany({
         select: {
             slug: true,
