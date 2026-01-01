@@ -110,34 +110,26 @@ model NewsArticle {
   @@index([expireAt])
 }
 
-// --------------------------------------------------------
-// 4. MUSIC TRACKS (Freesound / Jamendo)
-// --------------------------------------------------------
-model MusicTrack {
-  uniqueId    String   @id 
-  externalId  String
-  provider    String   // "jamendo" | "freesound"
-  
-  title       String
-  artist      String?
-  album       String?
-  
-  streamUrl   String
-  coverUrl    String?
-  waveformUrl String?
-  
-  duration    Float?
-  tags        String[]
-  license     String?
-  
-  rating      Float?
-  downloads   Int      @default(0)
+model MusicList {
+  category    String   @id // "lofi", "pop", "rock"
+  trackIds    String[] // Ordered list of IDs
   
   cachedAt    DateTime @default(now())
-  expireAt    DateTime
+  expireAt    DateTime // TTL (e.g. 24 hours)
+}
 
-  @@index([provider, tags])
-  @@index([expireAt])
+model MusicTrack {
+  id          String   @id
+  title       String
+  artist      String
+  image       String?
+  audio       String
+  duration    Int?
+  shareUrl    String?
+  license     String?
+  releasedDate String?
+  
+  cachedAt    DateTime @default(now())
 }
 
 // --------------------------------------------------------
@@ -172,4 +164,66 @@ model SystemState {
   key         String   @id // e.g., "sandbox_repo_sha"
   value       String   // e.g., "a1b2c3d4..."
   lastSyncAt  DateTime @updatedAt
+}
+
+// --------------------------------------------------------
+// 7. STOCKS (AlphaVantage)
+// --------------------------------------------------------
+
+model StockList {
+  category    String   @id // "top_gainers", "top_losers", "most_actively_traded"
+  tickers     String[] // Ordered list of tickers
+  
+  cachedAt    DateTime @default(now())
+  expireAt    DateTime // Short TTL (e.g. 1 hour)
+}
+
+model Stock {
+  ticker      String   @id
+  
+  // --- Quote Data (From Top Gainers/Losers List) ---
+  price       Float?
+  changeAmt   Float?
+  changePct   String?  // Keep as string to preserve "%" or exact format if needed, or Float
+  volume      BigInt?
+
+  // --- Fundamental Data (From Overview API) ---
+  name        String?
+  description String?  @db.Text
+  exchange    String?
+  sector      String?
+  industry    String?
+  assetType   String?
+  country     String?
+  address     String?
+
+  // Financials
+  marketCap   BigInt?
+  ebitda      BigInt?
+  peRatio     Float?
+  pegRatio    Float?
+  eps         Float?
+  beta        Float?
+  divYield    Float?
+  profitMargin Float?
+  
+  // TTM Stats
+  revenueTTM       BigInt?
+  grossProfitTTM   BigInt?
+  dilutedEPSTTM    Float?
+  roaTTM           Float?
+  roeTTM           Float?
+  revGrowthYOY     Float?
+
+  // Technicals
+  high52Week       Float?
+  low52Week        Float?
+  ma50Day          Float?
+  ma200Day         Float?
+  bookValue        Float?
+  analystTarget    Float?
+
+  cachedAt    DateTime @default(now())
+  // We use a separate expiry for Overview data since it changes less often than Price
+  overviewCachedAt DateTime? 
 }

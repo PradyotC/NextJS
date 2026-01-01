@@ -3,7 +3,9 @@ import {
     faHome, faChartLine, faNewspaper, faFilm, faCode, faPlayCircle, 
     faFire, faArrowTrendUp, faStar, faCalendar, faLineChart, faTerminal, 
     faGlobe, faFlag, faMicrochip, faMasksTheater, faBaseballBatBall, 
-    faFlaskVial, faHouseMedical, faMusic 
+    faFlaskVial, faHouseMedical, faMusic, 
+    // Add these new icons:
+    faHeadphones, faBolt, faGuitar
 } from "@fortawesome/free-solid-svg-icons";
 import { getSandboxNavItems } from "./sandbox-nav";
 import { generateNavLinks, RawNavItem } from "./nav-util";
@@ -32,8 +34,19 @@ export async function getSidebarData() {
                         { title: "Upcoming", icon: faCalendar },
                     ],
                 },
-                { title: "Freesound", icon: faMusic },
-                { title: "Jamendo", icon: faMusic },
+                // Updated Music Section
+                { 
+                    title: "Music", 
+                    icon: faMusic,
+                    subItems: [
+                        { title: "Lofi", icon: faHeadphones },
+                        { title: "Pop", icon: faMusic },
+                        { title: "Rock", icon: faGuitar },
+                        { title: "Electronic", icon: faBolt },
+                        { title: "Jazz", icon: faMusic },
+                        { title: "Classical", icon: faMusic },
+                    ]
+                },
                 {
                     title: "News",
                     icon: faNewspaper,
