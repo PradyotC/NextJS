@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio & Full-Stack Playground
 
-## Getting Started
+> **Under the Hood:** This isn't just a portfolio; it's a full-stack playground. Here is a breakdown of the architecture, the technology choices, and the "Why" behind them.
 
-First, run the development server:
+## 🏗 Core Architecture: SSR & Server Components
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+This application utilizes **Next.js 15+ App Router**.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Server-First Approach:** By default, pages are React Server Components (RSC). This reduces the JavaScript bundle size sent to the browser, improving First Contentful Paint (FCP) and SEO scores. Sensitive logic (API keys, DB connections) stays strictly on the server.
+- **Client Wrappers:** Interactivity (like the music player, stock carousel, or theme toggle) is isolated into "Client Components." The server fetches the data and passes it as props to these wrappers. This **"Island Architecture"** pattern ensures we only hydrate the JavaScript that actually needs to be interactive.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💾 Data Layer & Caching
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Neon Tech PostgreSQL + Prisma ORM
+I chose **Neon** because it offers Serverless PostgreSQL. It separates compute from storage, meaning it scales down to zero when not in use (cost-effective) and scales up instantly. **Prisma** provides a type-safe interface to the DB, ensuring that if my schema changes, my TypeScript code catches errors at build time.
 
-## Learn More
+| Feature | Description |
+| :--- | :--- |
+| **Smart Caching** | External APIs (Stocks, News) have strict rate limits. I implemented a caching layer in Postgres. Before hitting an API, the server checks the DB. If data is fresh, it serves from DB; otherwise, it fetches, updates DB, and serves. |
+| **Image Proxying** | To avoid CORS issues, mixed content warnings (HTTP images on HTTPS site), and hotlinking protection from providers like Jamendo/NewsAPI, images are proxied through a Next.js API route. |
+| **GitHub Sync** | The "Sandbox" doesn't just link to GitHub; it uses the GitHub API and Webhooks to pull raw file content and folder structures, effectively mirroring the repo structure live on the site. |
 
-To learn more about Next.js, take a look at the following resources:
+## 🌐 API Ecosystem
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project integrates several external APIs to provide live data.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Provider | Service Description |
+| :--- | :--- |
+| **AlphaVantage** | Provides daily stock data (Top Gainers/Losers). Cached for 24h to avoid hitting the 25-request limit. |
+| **TMDB** | The Movie Database API supplies trending movies, posters, and backdrops for the entertainment section. |
+| **Jamendo** | A catalog of royalty-free music. Tracks are fetched server-side, and audio streams are proxied to bypass strict CORS. |
+| **NewsAPI** | Aggregates global headlines. Articles are categorized (Tech, Business, etc.) and cached to maintain performance. |
+| **Piston API** | A high-performance code execution engine. It isolates and runs the code written in the Sandbox component securely in real-time. |
 
-## Deploy on Vercel
+## 🎨 Frontend & UI
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Tailwind CSS (v4) & DaisyUI (v5)
+- **Tailwind** allows for rapid styling without context-switching between HTML and CSS files. It enforces consistency via utility classes.
+- **DaisyUI** adds semantic component classes (like `btn`, `card`, `navbar`) on top of Tailwind. This keeps the HTML clean while maintaining the flexibility of utility classes. It also comes with built-in accessibility focus states and theme handling via `next-themes`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Tech Stack
+* **Framework:** Next.js 16 (App Router)
+* **Library:** React 19
+* **Language:** TypeScript
+* **Styling:** Tailwind CSS 4, DaisyUI 5, SASS
+* **Database:** Neon DB (Serverless Postgres)
+* **ORM:** Prisma
+* **Editor:** Monaco Editor (React)
+* **Audio:** Wavesurfer.js
+* **Deployment:** Vercel
+
+## ⚡ Deployment
+
+### CI/CD Pipeline
+Code is hosted on **GitHub**. Every push to the `main` branch triggers a deployment on **Vercel**. Vercel handles the build process, optimizes images, and deploys the Serverless Functions (API routes) to edge locations globally.
+
+---
+
+## 🛠 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone [https://github.com/yourusername/your-repo.git](https://github.com/yourusername/your-repo.git)
+   cd your-repo
