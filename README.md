@@ -53,12 +53,3 @@ This project integrates several external APIs to provide live data.
 
 ### CI/CD Pipeline
 Code is hosted on **GitHub**. Every push to the `main` branch triggers a deployment on **Vercel**. Vercel handles the build process, optimizes images, and deploys the Serverless Functions (API routes) to edge locations globally.
-
----
-
-## 🛠 Getting Started
-
-1. **Clone the repository**
-   ```bash
-   git clone [https://github.com/yourusername/your-repo.git](https://github.com/yourusername/your-repo.git)
-   cd your-repo
