@@ -1,15 +1,33 @@
 // src/lib/server/nav-data.ts
-import { 
-    faHome, faChartLine, faNewspaper, faFilm, faCode, faPlayCircle, 
-    faFire, faArrowTrendUp, faStar, faCalendar, faLineChart, faTerminal, 
-    faGlobe, faFlag, faMicrochip, faMasksTheater, faBaseballBatBall, 
-    faFlaskVial, faHouseMedical, faMusic, 
+import {
+    faHome,
+    faChartLine,
+    faNewspaper,
+    faFilm,
+    faCode,
+    faPlayCircle,
+    faFire,
+    faArrowTrendUp,
+    faStar,
+    faCalendar,
+    faLineChart,
+    faTerminal,
+    faGlobe,
+    faFlag,
+    faMicrochip,
+    faMasksTheater,
+    faBaseballBatBall,
+    faFlaskVial,
+    faHouseMedical,
+    faMusic,
     // Add these new icons:
-    faHeadphones, faBolt, faGuitar
+    faHeadphones,
+    faBolt,
+    faGuitar,
+    faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import { getSandboxNavItems } from "./sandbox-nav";
 import { generateNavLinks, RawNavItem } from "./nav-util";
-
 
 export async function getSidebarData() {
     // Await the dynamic DB data here
@@ -35,8 +53,8 @@ export async function getSidebarData() {
                     ],
                 },
                 // Updated Music Section
-                { 
-                    title: "Music", 
+                {
+                    title: "Music",
                     icon: faMusic,
                     subItems: [
                         { title: "Lofi", icon: faHeadphones },
@@ -45,7 +63,7 @@ export async function getSidebarData() {
                         { title: "Electronic", icon: faBolt },
                         { title: "Jazz", icon: faMusic },
                         { title: "Classical", icon: faMusic },
-                    ]
+                    ],
                 },
                 {
                     title: "News",
@@ -74,10 +92,11 @@ export async function getSidebarData() {
                     title: "Sandbox",
                     icon: faTerminal,
                     noLink: true,
-                    subItems: sandboxItems
+                    subItems: sandboxItems,
                 },
             ],
         },
+        { title: "About", icon: faCircleInfo, href: "/about" },
     ];
 
     // Generate and return final links
