@@ -1,30 +1,27 @@
 import { NextResponse } from "next/server";
-import { getMoviesByCategory, getMovieDetail } from "@/lib/server/tmdb-service";
+import { prisma } from "@/lib/server/prisma";
 
 export const runtime = "nodejs";
 
 export async function GET(req: Request, { params }: { params: Promise<{ path: string[] }> }) {
     try {
         const { path } = await params; 
-        // path is an array: e.g., ["movie", "popular"] or ["movie", "550"] or ["trending"]
-
-        // CASE 1: Trending
-        if (path[0] === "trending") {
-            const data = await getMoviesByCategory("trending");
-            return NextResponse.json(data);
-        }
 
         // CASE 2: Movie Routes
         if (path[0] === "movie" && path[1]) {
             const segment = path[1];
 
-            // Check if segment is a number (Movie ID) or a string (Category)
+            // Check if segment is a number (Movie ID)
             const isId = !isNaN(Number(segment));
 
             if (isId) {
-                // --- FETCH SINGLE MOVIE DETAIL ---
+                // --- FETCH SINGLE MOVIE DETAIL FROM DB ---
                 const movieId = parseInt(segment);
-                const movie = await getMovieDetail(movieId);
+                
+                // Use Prisma directly instead of the service function
+                const movie = await prisma.tmdbMovie.findUnique({
+                    where: { id: movieId }
+                });
 
                 if (!movie) {
                     return NextResponse.json({ error: "Movie not found" }, { status: 404 });
@@ -45,21 +42,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ path: st
                     releaseDate: movie.releaseDate,
                     originalLang: movie.originalLang,
                     originalTitle: movie.originalTitle,
-                    budget: movie.budget,
-                    revenue: movie.revenue,
+                    // Convert BigInt to Number for JSON safety
+                    budget: typeof movie.budget === 'bigint' ? Number(movie.budget) : movie.budget,
+                    revenue: typeof movie.revenue === 'bigint' ? Number(movie.revenue) : movie.revenue,
                     voteAverage: movie.voteAverage,
                     genres: movie.genres, // Array of strings
                 };
 
                 return NextResponse.json(filteredData);
-            } 
-            else {
-                // --- FETCH MOVIE LIST (popular, upcoming, etc) ---
-                const data = await getMoviesByCategory(segment);
-                return NextResponse.json(data);
             }
         }
-
         return NextResponse.json({ error: "Endpoint not supported" }, { status: 404 });
 
     } catch (error: any) {
